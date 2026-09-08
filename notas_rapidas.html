@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notas Rápidas (Scratchpad) • Notion Widget</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'beige-sombrio': '#E8D9B0',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'purpura-marron': '#6B2F41',
+            'marron-violeta': '#4A1F2B',
+            'azul-verde': '#2C5242',
+            'carbon-sombrio': '#1C342B'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #15131C;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      margin: 0;
+      padding: 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .widget-box {
+      background: linear-gradient(145deg, #1C342B 0%, #17241E 60%, #15131C 100%);
+      border: 1px solid rgba(201, 163, 106, 0.28);
+      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.7);
+    }
+    .candle-flame {
+      animation: flicker 1.8s infinite ease-in-out alternate;
+      transform-origin: center bottom;
+    }
+    @keyframes flicker {
+      0% { transform: scale(1) rotate(-1deg); opacity: 0.9; }
+      25% { transform: scale(1.08) rotate(1deg); opacity: 1; filter: drop-shadow(0 0 8px #C9A36A); }
+      50% { transform: scale(0.96) rotate(-0.5deg); opacity: 0.85; }
+      75% { transform: scale(1.05) rotate(1.5deg); opacity: 0.95; }
+      100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+  <div class="widget-box rounded-xl p-5 w-full max-w-xl mx-auto">
+    
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-[#A8864C]/20">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2h4"/><path d="M12 2v4"/><path d="M9 7 5 15a4.5 4.5 0 0 0 4 6h6a4.5 4.5 0 0 0 4-6L15 7"/></svg>
+                <h2 class="font-display text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">Notas Rápidas</h2>
+              </div>
+              <span id="save-status" class="text-[11px] italic text-[#C9A36A]/70">Guardado</span>
+            </div>
+            <textarea id="quick-notes" rows="6" placeholder="Apunta ideas temporales para clasificar más tarde en Notion..." class="w-full bg-[#15131C]/80 border border-[#A8864C]/30 rounded-lg p-3 text-xs text-[#E8D9B0] focus:outline-none focus:border-[#C9A36A] resize-none leading-relaxed"></textarea>
+            <div class="mt-2 flex justify-between text-xs">
+              <button onclick="document.getElementById('quick-notes').value=''; localStorage.removeItem('w_notes');" class="text-[#6B2F41] hover:text-[#C9A36A]">Limpiar notas</button>
+              <span class="text-[#C9A36A]/60 italic font-display text-[10px]">Borrador Local</span>
+            </div>
+          
+  </div>
+  <script>
+    
+            const t = document.getElementById('quick-notes');
+            t.value = localStorage.getItem('w_notes') || '';
+            t.oninput = () => {
+              document.getElementById('save-status').textContent = 'Escribiendo...';
+              clearTimeout(window._to);
+              window._to = setTimeout(() => {
+                localStorage.setItem('w_notes', t.value);
+                document.getElementById('save-status').textContent = 'Guardado';
+              }, 400);
+            };
+          
+  </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reloj Local & Fase Lunar • Notion Widget</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'beige-sombrio': '#E8D9B0',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'purpura-marron': '#6B2F41',
+            'marron-violeta': '#4A1F2B',
+            'azul-verde': '#2C5242',
+            'carbon-sombrio': '#1C342B'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #15131C;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      margin: 0;
+      padding: 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .widget-box {
+      background: linear-gradient(145deg, #1C342B 0%, #17241E 60%, #15131C 100%);
+      border: 1px solid rgba(201, 163, 106, 0.28);
+      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.7);
+    }
+    .candle-flame {
+      animation: flicker 1.8s infinite ease-in-out alternate;
+      transform-origin: center bottom;
+    }
+    @keyframes flicker {
+      0% { transform: scale(1) rotate(-1deg); opacity: 0.9; }
+      25% { transform: scale(1.08) rotate(1deg); opacity: 1; filter: drop-shadow(0 0 8px #C9A36A); }
+      50% { transform: scale(0.96) rotate(-0.5deg); opacity: 0.85; }
+      75% { transform: scale(1.05) rotate(1.5deg); opacity: 0.95; }
+      100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+  <div class="widget-box rounded-xl p-5 w-full max-w-xl mx-auto">
+    
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-[#A8864C]/20">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <h2 class="font-display text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">Inicio • Tiempo & Fase Lunar</h2>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-center">
+              <div class="bg-[#15131C]/80 border border-[#A8864C]/30 p-4 rounded-lg flex flex-col items-center justify-center">
+                <span id="lunar-icon" class="text-[#C9A36A] mb-1"></span>
+                <span id="lunar-phase" class="text-xs uppercase tracking-wider font-display text-[#C9A36A]">Cargando...</span>
+                <span id="gregorian-date" class="text-xs text-[#E8D9B0]/90 mt-1">Fecha...</span>
+              </div>
+              <div class="bg-[#4A1F2B]/60 border border-[#A8864C]/30 p-4 rounded-lg flex flex-col items-center justify-center">
+                <span class="text-xs uppercase tracking-wider font-display text-[#C9A36A]">Hora Local</span>
+                <span id="live-clock" class="font-display text-2xl font-bold tracking-widest text-[#E8D9B0] mt-1">00:00:00</span>
+              </div>
+            </div>
+          
+  </div>
+  <script>
+    
+            function tick() {
+              const d = new Date();
+              document.getElementById('live-clock').textContent = d.toTimeString().split(' ')[0];
+              document.getElementById('gregorian-date').textContent = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            }
+            setInterval(tick, 1000); tick();
+            document.getElementById('lunar-icon').innerHTML = '<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18V3z"/></svg>';
+            document.getElementById('lunar-phase').textContent = "Cuarto Creciente";
+          
+  </script>
+</body>
+</html>

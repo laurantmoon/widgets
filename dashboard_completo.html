@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio • Espacio de Trabajo • Notion Widget</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'beige-sombrio': '#E8D9B0',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'purpura-marron': '#6B2F41',
+            'marron-violeta': '#4A1F2B',
+            'azul-verde': '#2C5242',
+            'carbon-sombrio': '#1C342B'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #15131C;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      margin: 0;
+      padding: 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .widget-box {
+      background: linear-gradient(145deg, #1C342B 0%, #17241E 60%, #15131C 100%);
+      border: 1px solid rgba(201, 163, 106, 0.28);
+      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.7);
+    }
+    .candle-flame {
+      animation: flicker 1.8s infinite ease-in-out alternate;
+      transform-origin: center bottom;
+    }
+    @keyframes flicker {
+      0% { transform: scale(1) rotate(-1deg); opacity: 0.9; }
+      25% { transform: scale(1.08) rotate(1deg); opacity: 1; filter: drop-shadow(0 0 8px #C9A36A); }
+      50% { transform: scale(0.96) rotate(-0.5deg); opacity: 0.85; }
+      75% { transform: scale(1.05) rotate(1.5deg); opacity: 0.95; }
+      100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+  <div class="widget-box rounded-xl p-5 w-full max-w-xl mx-auto">
+    
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-[#A8864C]/20">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21h6"/><path d="M10 21V10h4v11"/><path class="candle-flame" d="M12 3c-1.5 2-2 3.5-2 5a2 2 0 0 0 4 0c0-1.5-.5-3-2-5z" fill="#C9A36A"/></svg>
+                <h2 class="font-display text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">Tiempo de Enfoque</h2>
+              </div>
+              <span id="timer-status-badge" class="text-[11px] uppercase tracking-widest font-display text-[#C9A36A] px-2 py-0.5 rounded border border-[#A8864C]/30 bg-[#15131C]/50">En pausa</span>
+            </div>
+            <div class="bg-[#15131C]/70 rounded-lg p-4 border border-[#A8864C]/20 text-center relative">
+              <div class="flex justify-center mb-2">
+                <svg class="w-10 h-16" viewBox="0 0 32 64" fill="none">
+                  <path d="M16 26v4" stroke="#A8864C" stroke-width="2" stroke-linecap="round"/>
+                  <path id="active-flame" class="candle-flame" d="M16 6c-4 5.5-5 9.5-5 13.5a5 5 0 0 0 10 0c0-4-1-8-5-13.5z" fill="#C9A36A"/>
+                  <rect x="8" y="30" width="16" height="30" rx="2" fill="#4A1F2B" stroke="#A8864C" stroke-width="1.2"/>
+                </svg>
+              </div>
+              <div id="timer-display" class="font-display text-3xl font-bold tracking-widest text-[#E8D9B0] mb-2">25:00</div>
+              <div class="flex justify-center gap-2 mb-3">
+                <button onclick="setFocusMinutes(15)" class="text-xs px-2.5 py-1 rounded bg-[#2C5242]/50 hover:bg-[#2C5242] border border-[#A8864C]/30 text-[#E8D9B0]">15m</button>
+                <button onclick="setFocusMinutes(25)" class="text-xs px-2.5 py-1 rounded bg-[#2C5242]/50 hover:bg-[#2C5242] border border-[#A8864C]/30 text-[#E8D9B0]">25m</button>
+                <button onclick="setFocusMinutes(50)" class="text-xs px-2.5 py-1 rounded bg-[#2C5242]/50 hover:bg-[#2C5242] border border-[#A8864C]/30 text-[#E8D9B0]">50m</button>
+              </div>
+              <div class="flex items-center justify-center gap-3">
+                <button id="btn-timer-toggle" onclick="toggleFocusTimer()" class="font-display text-xs tracking-wider uppercase px-4 py-2 rounded bg-[#6B2F41] hover:bg-[#A8864C] text-[#E8D9B0] border border-[#C9A36A]/50 font-semibold shadow">Iniciar Enfoque</button>
+                <button onclick="resetFocusTimer()" class="text-xs px-3 py-2 rounded bg-[#1C342B] hover:bg-[#4A1F2B] text-[#C9A36A] border border-[#A8864C]/30">Reiniciar</button>
+              </div>
+            </div><div class="my-6 border-b border-[#A8864C]/20"></div>
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-[#A8864C]/20">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m21 3-9.5 9.5"/></svg>
+                <h2 class="font-display text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">Territorios & Proyectos</h2>
+              </div>
+              <span class="text-xs text-[#C9A36A] font-display italic">Notion Hub</span>
+            </div>
+            <div id="portals-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          <div class="my-6 border-b border-[#A8864C]/20"></div>
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-[#A8864C]/20">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <h2 class="font-display text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">Inicio • Tiempo & Fase Lunar</h2>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-center">
+              <div class="bg-[#15131C]/80 border border-[#A8864C]/30 p-4 rounded-lg flex flex-col items-center justify-center">
+                <span id="lunar-icon" class="text-[#C9A36A] mb-1"></span>
+                <span id="lunar-phase" class="text-xs uppercase tracking-wider font-display text-[#C9A36A]">Cargando...</span>
+                <span id="gregorian-date" class="text-xs text-[#E8D9B0]/90 mt-1">Fecha...</span>
+              </div>
+              <div class="bg-[#4A1F2B]/60 border border-[#A8864C]/30 p-4 rounded-lg flex flex-col items-center justify-center">
+                <span class="text-xs uppercase tracking-wider font-display text-[#C9A36A]">Hora Local</span>
+                <span id="live-clock" class="font-display text-2xl font-bold tracking-widest text-[#E8D9B0] mt-1">00:00:00</span>
+              </div>
+            </div>
+          <div class="my-6 border-b border-[#A8864C]/20"></div>
+            <div class="flex items-center gap-2 pb-3 mb-3 border-b border-[#A8864C]/20">
+              <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h12l4 7-10 11L2 10l4-7z"/></svg>
+              <h2 class="font-display text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">Objetivo & Hábitos</h2>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs uppercase font-display text-[#C9A36A] mb-1">Prioridad del Día:</label>
+                <div class="p-2.5 rounded bg-[#15131C] border border-[#C9A36A]/50 text-xs text-[#E8D9B0] font-serif italic">"Finalizar el informe clave y avanzar en lecturas."</div>
+              </div>
+              <div id="habits-container" class="space-y-2 pt-1 text-xs"></div>
+            </div>
+          <div class="my-6 border-b border-[#A8864C]/20"></div>
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-[#A8864C]/20">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2h4"/><path d="M12 2v4"/><path d="M9 7 5 15a4.5 4.5 0 0 0 4 6h6a4.5 4.5 0 0 0 4-6L15 7"/></svg>
+                <h2 class="font-display text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">Notas Rápidas</h2>
+              </div>
+              <span id="save-status" class="text-[11px] italic text-[#C9A36A]/70">Guardado</span>
+            </div>
+            <textarea id="quick-notes" rows="6" placeholder="Apunta ideas temporales para clasificar más tarde en Notion..." class="w-full bg-[#15131C]/80 border border-[#A8864C]/30 rounded-lg p-3 text-xs text-[#E8D9B0] focus:outline-none focus:border-[#C9A36A] resize-none leading-relaxed"></textarea>
+            <div class="mt-2 flex justify-between text-xs">
+              <button onclick="document.getElementById('quick-notes').value=''; localStorage.removeItem('w_notes');" class="text-[#6B2F41] hover:text-[#C9A36A]">Limpiar notas</button>
+              <span class="text-[#C9A36A]/60 italic font-display text-[10px]">Borrador Local</span>
+            </div>
+          <div class="my-6 border-b border-[#A8864C]/20"></div>
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-[#A8864C]/20">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <h2 class="font-display text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">Reflexión & Criterio</h2>
+              </div>
+            </div>
+            <div class="bg-[#15131C]/90 border border-[#A8864C]/35 rounded-lg p-3 text-center mb-4">
+              <span class="block font-display text-[10px] uppercase tracking-widest text-[#C9A36A]">Principio Clave</span>
+              <h3 class="font-display text-sm font-bold text-[#E8D9B0] mt-0.5 mb-1">Claridad & Foco</h3>
+              <p class="text-xs italic text-[#E8D9B0]/90">"La concentración profunda consiste en eliminar lo innecesario."</p>
+            </div>
+            <div class="pt-2 border-t border-[#A8864C]/20">
+              <div class="flex justify-between text-xs mb-1">
+                <span class="font-display uppercase text-[10px] text-[#C9A36A]">Lectura en Curso</span>
+                <span class="text-[#E8D9B0]">Pág. 142 / 320</span>
+              </div>
+              <div class="w-full bg-[#15131C] border border-[#A8864C]/30 h-2 rounded-full overflow-hidden">
+                <div class="bg-gradient-to-r from-[#A8864C] to-[#C9A36A] h-full rounded-full" style="width: 45%;"></div>
+              </div>
+            </div>
+          
+  </div>
+  <script>
+    
+            let timerDuration = 25 * 60;
+            let timerRemaining = timerDuration;
+            let timerInterval = null;
+            let timerIsRunning = false;
+            function formatTime(s) { const m = Math.floor(s/60); const sec = s%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
+            function setFocusMinutes(m) { if(timerIsRunning) toggleFocusTimer(); timerDuration = m*60; timerRemaining = timerDuration; document.getElementById('timer-display').textContent = formatTime(timerRemaining); }
+            function toggleFocusTimer() {
+              const btn = document.getElementById('btn-timer-toggle');
+              const badge = document.getElementById('timer-status-badge');
+              const flame = document.getElementById('active-flame');
+              if (timerIsRunning) {
+                clearInterval(timerInterval); timerIsRunning = false; btn.textContent = 'Reanudar'; badge.textContent = 'En pausa'; flame.classList.remove('candle-flame'); flame.style.opacity = '0.35';
+              } else {
+                timerIsRunning = true; btn.textContent = 'Pausar'; badge.textContent = 'En Foco'; flame.classList.add('candle-flame'); flame.style.opacity = '1';
+                timerInterval = setInterval(() => {
+                  if (timerRemaining > 0) { timerRemaining--; document.getElementById('timer-display').textContent = formatTime(timerRemaining); }
+                  else { clearInterval(timerInterval); timerIsRunning = false; btn.textContent = 'Iniciar Enfoque'; badge.textContent = 'Completado'; }
+                }, 1000);
+              }
+            }
+            function resetFocusTimer() {
+              clearInterval(timerInterval); timerIsRunning = false; timerRemaining = timerDuration;
+              document.getElementById('timer-display').textContent = formatTime(timerRemaining);
+              document.getElementById('btn-timer-toggle').textContent = 'Iniciar Enfoque';
+              document.getElementById('timer-status-badge').textContent = 'En pausa';
+            }
+          
+
+            const items = [
+              { title: "Territorio I: Proyectos", sub: "Entregas activas", url: "https://www.notion.so" },
+              { title: "Territorio II: Áreas", sub: "Gestión continua", url: "https://www.notion.so" },
+              { title: "Territorio III: Recursos", sub: "Grimorio y notas", url: "https://www.notion.so" },
+              { title: "Territorio IV: Hábitos", sub: "Rutinas & Salud", url: "https://www.notion.so" },
+              { title: "Territorio V: Finanzas", sub: "Presupuestos", url: "https://www.notion.so" },
+              { title: "Territorio VI: Archivo", sub: "Historial cerrado", url: "https://www.notion.so" }
+            ];
+            document.getElementById('portals-grid').innerHTML = items.map(i => `
+              <a href="${i.url}" target="_blank" class="flex items-center justify-between p-3 rounded-lg border border-[#A8864C]/30 bg-[#15131C]/60 hover:bg-[#6B2F41]/40 hover:border-[#C9A36A] transition-all">
+                <div>
+                  <span class="block font-display text-xs text-[#E8D9B0] font-semibold">${i.title}</span>
+                  <span class="block text-[11px] text-[#C9A36A]/80 italic font-serif">${i.sub}</span>
+                </div>
+                <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+            `).join('');
+          
+
+            function tick() {
+              const d = new Date();
+              document.getElementById('live-clock').textContent = d.toTimeString().split(' ')[0];
+              document.getElementById('gregorian-date').textContent = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            }
+            setInterval(tick, 1000); tick();
+            document.getElementById('lunar-icon').innerHTML = '<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18V3z"/></svg>';
+            document.getElementById('lunar-phase').textContent = "Cuarto Creciente";
+          
+
+            const defaultHabits = [
+              { t: "Lectura formativa y notas (30m)", d: false },
+              { t: "Revisión de prioridades y calendario", d: true },
+              { t: "Bloque de trabajo profundo matutino", d: false },
+              { t: "Cierre del día y desconexión", d: false }
+            ];
+            let habits = JSON.parse(localStorage.getItem('w_habits')) || defaultHabits;
+            function renderH() {
+              document.getElementById('habits-container').innerHTML = habits.map((h, i) => `
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" ${h.d ? 'checked' : ''} onchange="toggleH(${i})" class="accent-[#6B2F41] rounded">
+                  <span class="${h.d ? 'line-through text-[#C9A36A]/50 italic' : 'text-[#E8D9B0]'}">${h.t}</span>
+                </label>
+              `).join('');
+            }
+            window.toggleH = (i) => { habits[i].d = !habits[i].d; localStorage.setItem('w_habits', JSON.stringify(habits)); renderH(); };
+            renderH();
+          
+
+            const t = document.getElementById('quick-notes');
+            t.value = localStorage.getItem('w_notes') || '';
+            t.oninput = () => {
+              document.getElementById('save-status').textContent = 'Escribiendo...';
+              clearTimeout(window._to);
+              window._to = setTimeout(() => {
+                localStorage.setItem('w_notes', t.value);
+                document.getElementById('save-status').textContent = 'Guardado';
+              }, 400);
+            };
+          
+
+  </script>
+</body>
+</html>

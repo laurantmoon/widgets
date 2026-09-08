@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Territorios & Proyectos • Notion Widget</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'beige-sombrio': '#E8D9B0',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'purpura-marron': '#6B2F41',
+            'marron-violeta': '#4A1F2B',
+            'azul-verde': '#2C5242',
+            'carbon-sombrio': '#1C342B'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #15131C;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      margin: 0;
+      padding: 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .widget-box {
+      background: linear-gradient(145deg, #1C342B 0%, #17241E 60%, #15131C 100%);
+      border: 1px solid rgba(201, 163, 106, 0.28);
+      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.7);
+    }
+    .candle-flame {
+      animation: flicker 1.8s infinite ease-in-out alternate;
+      transform-origin: center bottom;
+    }
+    @keyframes flicker {
+      0% { transform: scale(1) rotate(-1deg); opacity: 0.9; }
+      25% { transform: scale(1.08) rotate(1deg); opacity: 1; filter: drop-shadow(0 0 8px #C9A36A); }
+      50% { transform: scale(0.96) rotate(-0.5deg); opacity: 0.85; }
+      75% { transform: scale(1.05) rotate(1.5deg); opacity: 0.95; }
+      100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+  <div class="widget-box rounded-xl p-5 w-full max-w-xl mx-auto">
+    
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-[#A8864C]/20">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m21 3-9.5 9.5"/></svg>
+                <h2 class="font-display text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">Territorios & Proyectos</h2>
+              </div>
+              <span class="text-xs text-[#C9A36A] font-display italic">Notion Hub</span>
+            </div>
+            <div id="portals-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          
+  </div>
+  <script>
+    
+            const items = [
+              { title: "Territorio I: Proyectos", sub: "Entregas activas", url: "https://www.notion.so" },
+              { title: "Territorio II: Áreas", sub: "Gestión continua", url: "https://www.notion.so" },
+              { title: "Territorio III: Recursos", sub: "Grimorio y notas", url: "https://www.notion.so" },
+              { title: "Territorio IV: Hábitos", sub: "Rutinas & Salud", url: "https://www.notion.so" },
+              { title: "Territorio V: Finanzas", sub: "Presupuestos", url: "https://www.notion.so" },
+              { title: "Territorio VI: Archivo", sub: "Historial cerrado", url: "https://www.notion.so" }
+            ];
+            document.getElementById('portals-grid').innerHTML = items.map(i => `
+              <a href="${i.url}" target="_blank" class="flex items-center justify-between p-3 rounded-lg border border-[#A8864C]/30 bg-[#15131C]/60 hover:bg-[#6B2F41]/40 hover:border-[#C9A36A] transition-all">
+                <div>
+                  <span class="block font-display text-xs text-[#E8D9B0] font-semibold">${i.title}</span>
+                  <span class="block text-[11px] text-[#C9A36A]/80 italic font-serif">${i.sub}</span>
+                </div>
+                <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+            `).join('');
+          
+  </script>
+</body>
+</html>
