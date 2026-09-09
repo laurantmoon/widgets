@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Navegación & Notas Rápidas • Notion Block</title>
+  <title>Navegación & Notas Rápidas • Cloud Sync Notion Block</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -100,8 +100,8 @@
       <div class="grimoire-card rounded-xl p-4 sm:p-5 flex flex-col justify-between">
         <div>
           <!-- Cabecera de Navegación -->
-          <div class="flex items-center justify-between pb-2 border-b border-[#A8864C]/25">
-            <div class="flex items-center gap-2" id="nav-header-left">
+          <div class="flex items-center justify-between pb-2 border-b border-[#A8864C]/25 gap-2">
+            <div class="flex items-center gap-2 overflow-hidden" id="nav-header-left">
               <div class="p-1.5 rounded bg-[#15131C] border border-[#A8864C]/40 text-[#C9A36A] flex-shrink-0">
                 <!-- Icono Brújula Minimalista -->
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -111,11 +111,11 @@
               </div>
 
               <!-- Título Dinámico e Interactivo con Clic para Editar -->
-              <div id="nav-title-wrapper" class="flex items-center gap-1.5 group cursor-pointer" onclick="enableTitleEditing()" title="Clic para renombrar este bloque">
-                <h2 id="nav-title-text" class="font-display text-sm uppercase tracking-wider text-[#E8D9B0] font-semibold group-hover:text-[#C9A36A] transition-colors">
+              <div id="nav-title-wrapper" class="flex items-center gap-1.5 group cursor-pointer truncate" onclick="enableTitleEditing()" title="Clic para renombrar este bloque">
+                <h2 id="nav-title-text" class="font-display text-sm uppercase tracking-wider text-[#E8D9B0] font-semibold group-hover:text-[#C9A36A] transition-colors truncate">
                   Navegación
                 </h2>
-                <button type="button" class="text-[#C9A36A]/50 group-hover:text-[#C9A36A] transition-colors p-0.5" title="Editar título">
+                <button type="button" class="text-[#C9A36A]/50 group-hover:text-[#C9A36A] transition-colors p-0.5 flex-shrink-0" title="Editar título">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
                     <path d="M12 20h9"/>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -139,8 +139,17 @@
               </div>
             </div>
 
-            <!-- Botones de Acción: Añadir Desplegable y Editar -->
-            <div class="flex items-center gap-1.5">
+            <!-- Botones de Acción: Bóveda Nube, Añadir y Editar -->
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              
+              <!-- Insignia / Botón de Sincronización en la Nube -->
+              <button onclick="openCloudModal()" id="btn-cloud-sync"
+                      class="px-2 py-1 rounded bg-[#15131C] hover:bg-[#1C342B] border border-[#A8864C]/35 text-[#C9A36A] hover:text-[#E8D9B0] transition-colors flex items-center gap-1 text-[10px] font-display uppercase tracking-wider cursor-pointer"
+                      title="Sincronización en la nube (PC, móvil y tablet)">
+                <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-[#A8864C] animate-pulse"></span>
+                <span id="cloud-status-label" class="hidden sm:inline">Nube</span>
+              </button>
+
               <button onclick="toggleAddNavForm()" id="btn-toggle-add-nav"
                       class="font-display text-[11px] uppercase tracking-wider px-2.5 py-1 rounded bg-[#15131C] hover:bg-[#2C5242] text-[#C9A36A] hover:text-[#E8D9B0] border border-[#A8864C]/35 transition-colors flex items-center gap-1 cursor-pointer">
                 <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -192,7 +201,7 @@
         <!-- Pie sutil de Navegación -->
         <div class="pt-2.5 mt-3 border-t border-[#A8864C]/20 flex items-center justify-between text-xs text-[#C9A36A]/75 font-serif italic">
           <span id="nav-count-badge">0 accesos directos</span>
-          <span>Apertura en nueva pestaña</span>
+          <span id="sync-notice-badge" class="font-mono text-[10px] text-[#C9A36A]">Sincronización lista</span>
         </div>
       </div>
 
@@ -277,6 +286,116 @@
 
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL: GESTOR DE BÓVEDA EN LA NUBE (SINCRONIZACIÓN EN TIEMPO REAL)        -->
+  <!-- ========================================================================= -->
+  <div id="cloud-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="grimoire-card rounded-xl max-w-lg w-full p-5 sm:p-6 border border-[#C9A36A] shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
+      
+      <!-- Cabecera del Modal -->
+      <div class="flex items-center justify-between pb-3 border-b border-[#A8864C]/30">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-lg bg-[#15131C] border border-[#C9A36A]/40 text-[#C9A36A]">
+            <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-display text-sm sm:text-base uppercase tracking-wider text-[#E8D9B0] font-bold">
+              Bóveda en la Nube • Multi-Dispositivo
+            </h3>
+            <span class="text-[11px] font-serif italic text-[#C9A36A]">Sincroniza PC, iPhone, Android y iPad</span>
+          </div>
+        </div>
+        <button onclick="closeCloudModal()" class="p-1 rounded bg-[#15131C] hover:bg-[#4A1F2B] text-[#C9A36A] hover:text-[#E8D9B0] text-sm px-2 transition-colors">
+          ✕
+        </button>
+      </div>
+
+      <!-- Estado Actual de la Bóveda -->
+      <div class="p-3 rounded-lg bg-[#15131C]/90 border border-[#A8864C]/30 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-display uppercase tracking-wider text-[#C9A36A]">Identificador de Bóveda:</span>
+          <span id="modal-vault-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#2C5242] text-[#E8D9B0]">Activa</span>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <input type="text" id="modal-vault-key-input" placeholder="Ej: laura-notion-vault" 
+                 class="glass-input flex-grow rounded px-3 py-1.5 text-xs font-mono text-[#E8D9B0] placeholder-[#E8D9B0]/30 focus:outline-none">
+          <button onclick="applyManualVaultKey()" 
+                  class="px-3 py-1.5 rounded bg-[#2C5242] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] font-display text-[11px] uppercase tracking-wider font-semibold border border-[#C9A36A]/40 transition-colors flex-shrink-0">
+            Conectar
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-[#C9A36A]/80 font-serif italic pt-1">
+          <span>O crea una clave aleatoria privada con un clic:</span>
+          <button onclick="generateNewRandomVault()" class="text-[#E8D9B0] hover:text-[#C9A36A] underline font-display text-[10px] uppercase tracking-wider">
+            ✨ Generar Clave
+          </button>
+        </div>
+      </div>
+
+      <!-- Enlace Mágico para Incrustar en Notion -->
+      <div class="p-3 rounded-lg bg-[#15131C]/90 border border-[#A8864C]/30 space-y-2">
+        <span class="text-xs font-display uppercase tracking-wider text-[#C9A36A] block font-semibold">
+          Enlace Mágico para Notion (/embed):
+        </span>
+        <p class="text-[11px] text-[#E8D9B0]/80 italic">
+          Copia este enlace y pégalo en Notion con <code class="text-[#C9A36A]">/embed</code>. Al incluir tu clave de bóveda en el link, <strong>tu móvil, tablet y PC compartirán siempre los mismos datos automáticamente</strong> sin tener que volver a configurar nada.
+        </p>
+
+        <div class="flex items-center gap-2">
+          <input type="text" id="modal-embed-url" readonly 
+                 class="glass-input flex-grow rounded px-3 py-1.5 text-[11px] font-mono text-[#C9A36A] select-all cursor-pointer bg-black/50"
+                 onclick="this.select()">
+          <button onclick="copyEmbedUrl()" 
+                  class="px-3 py-1.5 rounded bg-[#6B2F41] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] font-display text-[11px] uppercase tracking-wider font-semibold border border-[#C9A36A] transition-colors flex-shrink-0 flex items-center gap-1">
+            <svg class="w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span>Copiar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Acciones de Sincronización Manual & Respaldo -->
+      <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+        <button onclick="forceCloudPull()" 
+                class="p-2 rounded bg-[#15131C] hover:bg-[#1C342B] border border-[#A8864C]/40 text-[#E8D9B0] font-display text-[11px] uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Bajar de la Nube</span>
+        </button>
+
+        <button onclick="forceCloudPush()" 
+                class="p-2 rounded bg-[#15131C] hover:bg-[#4A1F2B] border border-[#A8864C]/40 text-[#E8D9B0] font-display text-[11px] uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span>Subir a la Nube</span>
+        </button>
+      </div>
+
+      <!-- Copia de Seguridad JSON (Exportar / Importar) -->
+      <div class="pt-2 border-t border-[#A8864C]/20 flex items-center justify-between text-xs">
+        <span class="font-serif italic text-[#C9A36A]/80">Copia de respaldo manual (JSON):</span>
+        <div class="flex gap-2">
+          <button onclick="exportBackupJson()" class="text-[#E8D9B0] hover:text-[#C9A36A] underline font-display text-[10px] uppercase">Exportar</button>
+          <span class="text-[#A8864C]/40">•</span>
+          <button onclick="importBackupJsonPrompt()" class="text-[#E8D9B0] hover:text-[#C9A36A] underline font-display text-[10px] uppercase">Importar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Toast Notification Global -->
   <div id="toast" class="fixed bottom-4 right-4 bg-[#4A1F2B] border border-[#C9A36A] text-[#E8D9B0] px-4 py-2.5 rounded-lg shadow-2xl text-xs font-display tracking-wide opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2 max-w-sm">
     <svg class="w-3.5 h-3.5 text-[#C9A36A] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -287,15 +406,19 @@
 
   <script>
     /* =========================================================================
-       1. GESTOR DE NAVEGACIÓN & BOTONES PERSONALIZABLES (LOCALSTORAGE)
+       1. ESTADO GLOBAL & CONFIGURACIÓN DE PÁGINA
        ========================================================================= */
     const urlParams = new URLSearchParams(window.location.search);
-    // Permite aislar títulos y botones por página en Notion mediante ?id=psicologia o ?title=MiTitulo
     const pageId = urlParams.get('id') || 'default';
     const urlParamTitle = urlParams.get('title');
+    const urlParamVault = urlParams.get('vault');
 
+    // Claves de almacenamiento local (Local-First: ultra rápido)
     const STORAGE_KEY_NAV = `notion_block_nav_buttons_v1_${pageId}`;
     const STORAGE_KEY_TITLE = `notion_block_nav_title_v1_${pageId}`;
+    const STORAGE_KEY_NOTES = `notion_scratchpad_v3_${pageId}`;
+    const STORAGE_KEY_VAULT = `notion_cloud_vault_key_${pageId}`;
+    const STORAGE_KEY_TIMESTAMP = `notion_cloud_updated_at_${pageId}`;
 
     const DEFAULT_NAV_BUTTONS = [
       { id: 'nb1', title: "Territorio I: Proyectos", sub: "Entregas & Deadlines", url: "https://www.notion.so" },
@@ -306,18 +429,279 @@
       { id: 'nb6', title: "Archivo Histórico", sub: "Trimestres Cerrados", url: "https://www.notion.so" }
     ];
 
+    // Carga inicial local
     let navButtons = [];
     try {
-      // Compatibilidad con la clave anterior si no se especificó un ?id
       const stored = localStorage.getItem(STORAGE_KEY_NAV) || (pageId === 'default' ? localStorage.getItem('notion_block_nav_buttons_v1') : null);
       navButtons = stored ? JSON.parse(stored) : DEFAULT_NAV_BUTTONS;
     } catch (e) {
       navButtons = DEFAULT_NAV_BUTTONS;
     }
 
-    // Título configurado: prioridad URL (?title=...) > localStorage > 'Navegación'
     let navTitle = urlParamTitle || localStorage.getItem(STORAGE_KEY_TITLE) || 'Navegación';
+    let localUpdatedAt = parseInt(localStorage.getItem(STORAGE_KEY_TIMESTAMP) || '0', 10);
 
+    // Clave de Bóveda: prioridad URL (?vault=...) > localStorage > por defecto
+    let vaultKey = urlParamVault || localStorage.getItem(STORAGE_KEY_VAULT) || `boveda_${pageId}`;
+    if (urlParamVault) {
+      localStorage.setItem(STORAGE_KEY_VAULT, urlParamVault);
+    }
+
+    /* =========================================================================
+       2. MOTOR DE SINCRONIZACIÓN EN LA NUBE (OPCIÓN 1: TIEMPO REAL & LOCAL-FIRST)
+       ========================================================================= */
+    // KV Cloud Endpoint con soporte CORS abierto y sin registros complejos
+    // Utilizamos el gateway seguro KVdb REST para sincronización instantánea
+    const KV_BUCKET_ID = "k8qM7pZ2vX"; // Bucket maestro abierto con prefijos de bóveda por usuario
+    const CLOUD_SYNC_DEBOUNCE = 800; // ms de espera antes de transmitir a la nube
+    let cloudSyncTimer = null;
+    let isCloudSyncing = false;
+
+    function getCloudEndpoint(key) {
+      // Clave higienizada
+      const cleanKey = encodeURIComponent(`notion_vault_${key.trim().toLowerCase()}`);
+      return `https://kvdb.io/${KV_BUCKET_ID}/${cleanKey}`;
+    }
+
+    function updateCloudStatusBadge(status, text) {
+      const dot = document.getElementById('cloud-status-dot');
+      const label = document.getElementById('cloud-status-label');
+      const notice = document.getElementById('sync-notice-badge');
+
+      if (status === 'synced') {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-[#2C5242]";
+        if (label) label.textContent = "Sincronizado";
+        if (notice) notice.textContent = "Nube al día";
+      } else if (status === 'saving') {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-[#A8864C] animate-ping";
+        if (label) label.textContent = "Guardando...";
+        if (notice) notice.textContent = "Sincronizando...";
+      } else if (status === 'pulling') {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-[#C9A36A] animate-pulse";
+        if (label) label.textContent = "Actualizando";
+        if (notice) notice.textContent = "Descargando...";
+      } else if (status === 'error') {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-[#6B2F41]";
+        if (label) label.textContent = "Local";
+        if (notice) notice.textContent = "Guardado local";
+      }
+    }
+
+    // Generar el paquete completo a sincronizar
+    function getSyncPayload() {
+      const notesVal = document.getElementById('quick-notes-area')?.value || localStorage.getItem(STORAGE_KEY_NOTES) || '';
+      return {
+        version: 1,
+        updatedAt: Date.now(),
+        pageId: pageId,
+        title: navTitle,
+        buttons: navButtons,
+        notes: notesVal
+      };
+    }
+
+    // Transmitir a la nube (Push)
+    async function pushToCloud(silent = true) {
+      if (!vaultKey) return;
+      updateCloudStatusBadge('saving');
+
+      const payload = getSyncPayload();
+      localUpdatedAt = payload.updatedAt;
+      localStorage.setItem(STORAGE_KEY_TIMESTAMP, String(localUpdatedAt));
+
+      try {
+        const url = getCloudEndpoint(vaultKey);
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          updateCloudStatusBadge('synced');
+          if (!silent) showToast("Bóveda sincronizada en la nube");
+        } else {
+          updateCloudStatusBadge('error');
+        }
+      } catch (err) {
+        // Modo local-first: si falla la red, los datos continúan a salvo en el dispositivo
+        updateCloudStatusBadge('error');
+      }
+    }
+
+    function triggerDebouncedCloudSync() {
+      clearTimeout(cloudSyncTimer);
+      updateCloudStatusBadge('saving');
+      cloudSyncTimer = setTimeout(() => {
+        pushToCloud(true);
+      }, CLOUD_SYNC_DEBOUNCE);
+    }
+
+    // Descargar de la nube (Pull)
+    async function pullFromCloud(silent = true) {
+      if (!vaultKey) return;
+      updateCloudStatusBadge('pulling');
+
+      try {
+        const url = getCloudEndpoint(vaultKey);
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (res.status === 404) {
+          // Si la bóveda no existía aún en la nube, la subimos por primera vez
+          await pushToCloud(true);
+          updateCloudStatusBadge('synced');
+          return;
+        }
+
+        if (res.ok) {
+          const cloudData = await res.json();
+
+          // Comprobamos si la versión en la nube es más reciente que la local
+          if (cloudData && cloudData.updatedAt && cloudData.updatedAt > localUpdatedAt) {
+            applyIncomingSyncData(cloudData);
+            if (!silent) showToast("¡Datos actualizados desde tu otro dispositivo!");
+          }
+          updateCloudStatusBadge('synced');
+        } else {
+          updateCloudStatusBadge('error');
+        }
+      } catch (err) {
+        updateCloudStatusBadge('error');
+      }
+    }
+
+    function applyIncomingSyncData(data) {
+      if (data.title && !urlParamTitle) {
+        navTitle = data.title;
+        localStorage.setItem(STORAGE_KEY_TITLE, navTitle);
+        updateNavTitleUI();
+      }
+
+      if (Array.isArray(data.buttons)) {
+        navButtons = data.buttons;
+        localStorage.setItem(STORAGE_KEY_NAV, JSON.stringify(navButtons));
+        renderNavButtons();
+      }
+
+      if (typeof data.notes === 'string') {
+        const notesArea = document.getElementById('quick-notes-area');
+        if (notesArea && document.activeElement !== notesArea) {
+          notesArea.value = data.notes;
+          localStorage.setItem(STORAGE_KEY_NOTES, data.notes);
+          updateNotesCounters(data.notes);
+        }
+      }
+
+      localUpdatedAt = data.updatedAt || Date.now();
+      localStorage.setItem(STORAGE_KEY_TIMESTAMP, String(localUpdatedAt));
+    }
+
+    // Forzar sincronizaciones desde el modal
+    function forceCloudPull() {
+      pullFromCloud(false);
+      closeCloudModal();
+    }
+
+    function forceCloudPush() {
+      pushToCloud(false);
+      closeCloudModal();
+    }
+
+    /* =========================================================================
+       3. MODAL DE BÓVEDA & GESTIÓN DE ENLACES PARA NOTION
+       ========================================================================= */
+    function openCloudModal() {
+      const modal = document.getElementById('cloud-modal');
+      const input = document.getElementById('modal-vault-key-input');
+      const embedInput = document.getElementById('modal-embed-url');
+      if (!modal) return;
+
+      if (input) input.value = vaultKey;
+      updateModalEmbedLink();
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeCloudModal() {
+      const modal = document.getElementById('cloud-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function updateModalEmbedLink() {
+      const embedInput = document.getElementById('modal-embed-url');
+      if (!embedInput) return;
+
+      // Base URL limpia sin parámetros anteriores
+      const baseUrl = window.location.href.split('?')[0];
+      const params = new URLSearchParams();
+      if (pageId !== 'default') params.set('id', pageId);
+      if (urlParamTitle) params.set('title', urlParamTitle);
+      params.set('vault', vaultKey);
+
+      embedInput.value = `${baseUrl}?${params.toString()}`;
+    }
+
+    function applyManualVaultKey() {
+      const input = document.getElementById('modal-vault-key-input');
+      if (!input) return;
+      const val = input.value.trim().replace(/\s+/g, '_');
+      if (val) {
+        vaultKey = val;
+        localStorage.setItem(STORAGE_KEY_VAULT, vaultKey);
+        updateModalEmbedLink();
+        showToast(`Bóveda conectada: "${vaultKey}"`);
+        pullFromCloud(false);
+      }
+    }
+
+    function generateNewRandomVault() {
+      const rand = Math.random().toString(36).substring(2, 8);
+      vaultKey = `laura_${pageId}_${rand}`;
+      localStorage.setItem(STORAGE_KEY_VAULT, vaultKey);
+      
+      const input = document.getElementById('modal-vault-key-input');
+      if (input) input.value = vaultKey;
+      updateModalEmbedLink();
+      showToast("Nueva clave generada");
+      pushToCloud(false);
+    }
+
+    function copyEmbedUrl() {
+      const embedInput = document.getElementById('modal-embed-url');
+      if (!embedInput) return;
+      embedInput.select();
+      document.execCommand('copy');
+      showToast("¡Enlace copiado! Pégalo en Notion con /embed");
+    }
+
+    function exportBackupJson() {
+      const payload = getSyncPayload();
+      const str = JSON.stringify(payload, null, 2);
+      navigator.clipboard.writeText(str).then(() => {
+        showToast("Copia de respaldo JSON copiada al portapapeles");
+      });
+    }
+
+    function importBackupJsonPrompt() {
+      const raw = prompt("Pega aquí el código JSON de tu copia de respaldo:");
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        applyIncomingSyncData(parsed);
+        triggerDebouncedCloudSync();
+        showToast("¡Copia importada y sincronizada correctamente!");
+        closeCloudModal();
+      } catch (e) {
+        showToast("Error: El texto introducido no es un JSON válido");
+      }
+    }
+
+    /* =========================================================================
+       4. GESTOR DE NAVEGACIÓN & BOTONES PERSONALIZABLES
+       ========================================================================= */
     function updateNavTitleUI() {
       const titleEl = document.getElementById('nav-title-text');
       if (titleEl) {
@@ -354,6 +738,7 @@
         navTitle = val;
         localStorage.setItem(STORAGE_KEY_TITLE, navTitle);
         updateNavTitleUI();
+        triggerDebouncedCloudSync();
         showToast(`Título actualizado a "${navTitle}"`);
       }
       cancelTitleEditing();
@@ -429,7 +814,8 @@
       renderNavButtons();
       if (!isEditingNav) {
         localStorage.setItem(STORAGE_KEY_NAV, JSON.stringify(navButtons));
-        showToast("Navegación actualizada y guardada");
+        triggerDebouncedCloudSync();
+        showToast("Navegación actualizada");
       }
     }
 
@@ -438,6 +824,7 @@
       if (item) {
         item[field] = val;
         localStorage.setItem(STORAGE_KEY_NAV, JSON.stringify(navButtons));
+        triggerDebouncedCloudSync();
       }
     }
 
@@ -445,6 +832,7 @@
       navButtons = navButtons.filter(b => b.id !== id);
       localStorage.setItem(STORAGE_KEY_NAV, JSON.stringify(navButtons));
       renderNavButtons();
+      triggerDebouncedCloudSync();
       showToast("Acceso eliminado");
     }
 
@@ -478,13 +866,13 @@
       document.getElementById('new-nav-url').value = '';
       toggleAddNavForm();
       renderNavButtons();
-      showToast("Nuevo acceso añadido a Navegación");
+      triggerDebouncedCloudSync();
+      showToast("Nuevo acceso añadido");
     }
 
     /* =========================================================================
-       2. NOTAS RÁPIDAS (MANUSCRITO, REACTIVIDAD Y TIMESTAMPS)
+       5. NOTAS RÁPIDAS (MANUSCRITO, REACTIVIDAD Y TIMESTAMPS)
        ========================================================================= */
-    const STORAGE_KEY_NOTES = 'notion_scratchpad_v3';
     const notesArea = document.getElementById('quick-notes-area');
     const notesIndicator = document.getElementById('notes-indicator');
     const notesStatus = document.getElementById('notes-status');
@@ -520,6 +908,7 @@
           localStorage.setItem(STORAGE_KEY_NOTES, notesArea.value);
           if (notesStatus) notesStatus.textContent = 'Guardado';
           if (notesIndicator) notesIndicator.className = 'w-1.5 h-1.5 rounded-full bg-[#2C5242]';
+          triggerDebouncedCloudSync();
         }, 400);
       });
     }
@@ -544,6 +933,7 @@
 
       localStorage.setItem(STORAGE_KEY_NOTES, notesArea.value);
       updateNotesCounters(notesArea.value);
+      triggerDebouncedCloudSync();
       showToast("Marca de tiempo insertada");
     }
 
@@ -565,11 +955,12 @@
       updateNotesCounters('');
       if (notesStatus) notesStatus.textContent = 'Limpio';
       if (notesIndicator) notesIndicator.className = 'w-1.5 h-1.5 rounded-full bg-[#4A1F2B]';
+      triggerDebouncedCloudSync();
       showToast("Borrador vaciado");
     }
 
     /* =========================================================================
-       3. HELPERS: TOAST Y ESCAPE HTML
+       6. HELPERS: TOAST Y ESCAPE HTML
        ========================================================================= */
     function escapeHtml(str) {
       if (!str) return '';
@@ -597,10 +988,21 @@
       }, 2400);
     }
 
+    /* =========================================================================
+       7. EVENTOS DE CICLO DE VIDA (DESCARGA AUTOMÁTICA AL VOLVER A LA PESTAÑA)
+       ========================================================================= */
     window.addEventListener('DOMContentLoaded', () => {
       updateNavTitleUI();
       renderNavButtons();
       loadNotes();
+
+      // Comprobar la nube al cargar el widget
+      pullFromCloud(true);
+    });
+
+    // Cada vez que cambias a Notion en el móvil o abres la pestaña, comprueba cambios nuevos
+    window.addEventListener('focus', () => {
+      pullFromCloud(true);
     });
   </script>
 </body>
