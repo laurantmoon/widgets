@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Divisor Dorado Arcano • Notion Widget & Generator</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Cinzel & Cormorant Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'beige-sombrio': '#E8D9B0',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'purpura-marron': '#6B2F41',
+            'marron-violeta': '#4A1F2B',
+            'azul-verde': '#2C5242',
+            'carbon-sombrio': '#1C342B',
+            'notion-dark': '#191919'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #191919;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #191919;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4A1F2B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A8864C;
+    }
+
+    .grimoire-card {
+      background: linear-gradient(145deg, #1C342B 0%, #17241E 55%, #15131C 100%);
+      border: 1px solid rgba(201, 163, 106, 0.32);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.75), 0 0 20px rgba(74, 31, 43, 0.25);
+    }
+
+    .divider-glow {
+      filter: drop-shadow(0 0 6px rgba(201, 163, 106, 0.55));
+    }
+
+    .pulse-flame {
+      animation: subtlePulse 2.8s infinite ease-in-out;
+    }
+
+    @keyframes subtlePulse {
+      0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 4px rgba(201, 163, 106, 0.4)); }
+      50% { opacity: 1; filter: drop-shadow(0 0 10px rgba(232, 217, 176, 0.7)); }
+    }
+
+    /* Embedded solo divider mode: zeroes padding and borders */
+    body.standalone-divider {
+      background: transparent !important;
+      min-height: auto !important;
+      padding: 0 !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body class="p-3 sm:p-5 lg:p-6 min-h-screen">
+
+  <div id="full-interface-container" class="max-w-4xl mx-auto space-y-6">
+
+    <!-- CABECERA DE LA HERRAMIENTA -->
+    <div class="grimoire-card rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border border-[#C9A36A]/35">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-xl bg-[#15131C] border border-[#C9A36A]/50 text-[#C9A36A] shadow-inner flex-shrink-0">
+          <!-- Icono Divisor Arcano -->
+          <svg class="w-6 h-6 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="2" y1="12" x2="8" y2="12"/>
+            <circle cx="12" cy="12" r="3"/>
+            <line x1="16" y1="12" x2="22" y2="12"/>
+            <path d="M12 7v1"/>
+            <path d="M12 16v1"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-display uppercase tracking-widest text-[#C9A36A] px-2 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/40">
+              Estética Dark Academia
+            </span>
+          </div>
+          <h1 class="font-display text-lg sm:text-xl uppercase tracking-wider font-bold text-[#E8D9B0] mt-0.5">
+            Divisores Dorados & Sellos Arcanos
+          </h1>
+        </div>
+      </div>
+
+      <!-- Acciones de Exportación Rápida -->
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <button onclick="copySvgCode()" 
+                class="font-display text-xs uppercase tracking-wider px-3.5 py-2 rounded-lg bg-[#2C5242] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] border border-[#C9A36A]/50 transition-colors flex items-center gap-1.5 shadow font-semibold">
+          <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span>Copiar SVG</span>
+        </button>
+
+        <button onclick="copyEmbedUrl()" 
+                class="font-display text-xs uppercase tracking-wider px-3.5 py-2 rounded-lg bg-[#6B2F41] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] border border-[#C9A36A]/50 transition-colors flex items-center gap-1.5 shadow font-semibold"
+                title="Copiar URL directa para Notion /embed">
+          <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          <span>Link /embed</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ÁREA DE PREVISUALIZACIÓN EN VIVO (Simulando fondo de Notion) -->
+    <div class="rounded-xl border border-[#A8864C]/35 bg-[#191919] p-6 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center min-h-[160px]">
+      
+      <!-- Fondo sutil de texto simulado de Notion para ver el divisor en contexto -->
+      <div class="w-full text-center mb-4 opacity-40 select-none pointer-events-none">
+        <p class="font-serif italic text-xs text-[#E8D9B0]">Capítulo I • La Bóveda de la Memoria y los Arcanos</p>
+      </div>
+
+      <!-- CONTENEDOR DEL DIVISOR RENDERIZADO -->
+      <div id="live-divider-target" class="w-full my-2 flex items-center justify-center transition-all duration-300">
+        <!-- Generado dinámicamente por JS -->
+      </div>
+
+      <div class="w-full text-center mt-4 opacity-40 select-none pointer-events-none">
+        <p class="font-serif italic text-xs text-[#E8D9B0]">Texto subsiguiente de la página de Notion...</p>
+      </div>
+
+      <!-- Botón de Modo Solo Divisor (Permite previsualizar cómo queda limpio) -->
+      <div class="absolute bottom-2 right-2">
+        <button onclick="toggleCleanPreview()" id="btn-toggle-preview" class="text-[10px] font-display uppercase tracking-widest px-2.5 py-1 rounded bg-[#15131C] text-[#C9A36A] hover:text-[#E8D9B0] border border-[#A8864C]/30 transition-colors">
+          Vista Aislada
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL DE CONFIGURACIÓN Y PERSONALIZACIÓN -->
+    <div class="grimoire-card rounded-xl p-4 sm:p-5 space-y-5">
+      
+      <!-- 1. SELECCIÓN DE SÍMBOLO CENTRAL -->
+      <div>
+        <div class="flex items-center justify-between pb-2 border-b border-[#A8864C]/25 mb-3">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 3a6 6 0 0 0 6 6 6 6 0 0 1-6 6 6 6 0 0 1-6-6 6 6 0 0 1 6-6Z"/>
+            </svg>
+            <h2 class="font-display text-sm uppercase tracking-wider text-[#E8D9B0] font-semibold">
+              1. Selecciona el Símbolo Central
+            </h2>
+          </div>
+          <span id="current-symbol-label" class="text-xs font-serif italic text-[#C9A36A]">Luna Creciente</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2" id="symbols-selector-grid">
+          <!-- Inyectado dinámicamente por JS -->
+        </div>
+      </div>
+
+      <!-- 2. ESTILO DE LA LÍNEA DIVISORIA -->
+      <div>
+        <div class="flex items-center justify-between pb-2 border-b border-[#A8864C]/25 mb-3">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="m5 9-3 3 3 3"/>
+              <path d="m19 9 3 3-3 3"/>
+            </svg>
+            <h2 class="font-display text-sm uppercase tracking-wider text-[#E8D9B0] font-semibold">
+              2. Estilo de la Línea
+            </h2>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="lines-selector-grid">
+          <!-- Inyectado por JS -->
+        </div>
+      </div>
+
+      <!-- 3. TONO DE ORO & EFECTO DE RESPLANDOR -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+        
+        <!-- Tonos de Oro de la Paleta -->
+        <div class="bg-[#15131C]/80 p-3 rounded-lg border border-[#A8864C]/30 space-y-2">
+          <label class="text-[11px] font-display uppercase tracking-wider text-[#C9A36A] font-semibold block">
+            Tonalidad Dorada
+          </label>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="setGoldTone('arenisca')" id="tone-arenisca" class="px-2.5 py-1 rounded text-xs font-display flex items-center gap-1.5 border border-[#C9A36A] bg-[#4A1F2B] text-[#E8D9B0]">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#C9A36A]"></span>
+              <span>Arenisca (#C9A36A)</span>
+            </button>
+            <button onclick="setGoldTone('cafe')" id="tone-cafe" class="px-2.5 py-1 rounded text-xs font-display flex items-center gap-1.5 border border-[#A8864C]/30 bg-[#15131C] text-[#C9A36A]">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#A8864C]"></span>
+              <span>Café Brillante (#A8864C)</span>
+            </button>
+            <button onclick="setGoldTone('beige')" id="tone-beige" class="px-2.5 py-1 rounded text-xs font-display flex items-center gap-1.5 border border-[#A8864C]/30 bg-[#15131C] text-[#C9A36A]">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#E8D9B0]"></span>
+              <span>Beige Sombrío (#E8D9B0)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ajustes Finos: Resplandor y Ancho -->
+        <div class="bg-[#15131C]/80 p-3 rounded-lg border border-[#A8864C]/30 flex flex-col justify-between gap-2">
+          <label class="text-[11px] font-display uppercase tracking-wider text-[#C9A36A] font-semibold block">
+            Efectos & Ajustes
+          </label>
+          
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-serif italic text-[#E8D9B0]/90">Resplandor Místico (Glow)</span>
+            <button onclick="toggleGlowEffect()" id="btn-toggle-glow" 
+                    class="px-2.5 py-1 rounded text-xs font-display uppercase tracking-wider bg-[#2C5242] border border-[#C9A36A]/50 text-[#E8D9B0]">
+              Activado
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-1 border-t border-[#A8864C]/20">
+            <span class="font-serif italic text-[#E8D9B0]/90">Ancho del Divisor</span>
+            <div class="flex items-center gap-1">
+              <button onclick="setDividerWidth('compact')" id="w-compact" class="px-2 py-0.5 rounded text-[10px] font-display bg-[#15131C] text-[#C9A36A] border border-[#A8864C]/30">Corto</button>
+              <button onclick="setDividerWidth('medium')" id="w-medium" class="px-2 py-0.5 rounded text-[10px] font-display bg-[#4A1F2B] text-[#E8D9B0] border border-[#C9A36A]">Medio</button>
+              <button onclick="setDividerWidth('full')" id="w-full" class="px-2 py-0.5 rounded text-[10px] font-display bg-[#15131C] text-[#C9A36A] border border-[#A8864C]/30">Largo</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- GUÍA RÁPIDA: CÓMO USARLO EN NOTION -->
+    <div class="grimoire-card rounded-xl p-4 sm:p-5 space-y-3">
+      <h3 class="font-display text-sm uppercase tracking-wider text-[#E8D9B0] font-bold pb-2 border-b border-[#A8864C]/25 flex items-center gap-2">
+        <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <span>¿Cómo colocarlo en tu Notion?</span>
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+        <div class="p-3 rounded-lg bg-[#15131C]/70 border border-[#A8864C]/25 space-y-1.5">
+          <span class="font-display uppercase text-[#C9A36A] font-semibold block text-[11px]">Opción 1: Vía /embed (Recomendada)</span>
+          <p class="text-[#E8D9B0]/80 italic">
+            Haz clic en <strong>"Link /embed"</strong> arriba para copiar el enlace directo configurado con tu símbolo elegido. En tu página de Notion, escribe <code class="text-[#C9A36A]">/embed</code> y pega la URL. Quedará limpio y dinámico.
+          </p>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#15131C]/70 border border-[#A8864C]/25 space-y-1.5">
+          <span class="font-display uppercase text-[#C9A36A] font-semibold block text-[11px]">Opción 2: Imagen PNG Nítida</span>
+          <p class="text-[#E8D9B0]/80 italic">
+            Pulsa el botón <strong>"Descargar PNG"</strong> para obtener una imagen panorámica de alta resolución con fondo transparente. En Notion escribe <code class="text-[#C9A36A]">/image</code> y súbela como divisor visual.
+          </p>
+          <button onclick="downloadDividerPng()" class="w-full mt-1 py-1 rounded bg-[#1C342B] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] text-[10px] font-display uppercase tracking-wider border border-[#C9A36A]/40 transition-colors">
+            Descargar PNG
+          </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#15131C]/70 border border-[#A8864C]/25 space-y-1.5">
+          <span class="font-display uppercase text-[#C9A36A] font-semibold block text-[11px]">Opción 3: Bloque de Código SVG</span>
+          <p class="text-[#E8D9B0]/80 italic">
+            Pulsa <strong>"Copiar SVG"</strong> para llevarte el código vectorial limpio a tu portapapeles y reutilizarlo en diseño, widgets web o aplicaciones compatibles.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- VISTA AISLADA LIMPIA: SE ACTIVA SI SE ABRE CON ?clean=true O EN MODO PREVIEW -->
+  <div id="clean-preview-wrapper" class="hidden w-full py-4 flex items-center justify-center">
+    <div id="clean-divider-target" class="w-full max-w-4xl px-4 flex items-center justify-center"></div>
+  </div>
+
+  <!-- Canvas oculto para renderizado y descarga PNG en alta resolución -->
+  <canvas id="download-canvas" width="1200" height="120" class="hidden"></canvas>
+
+  <!-- Toast Notification Global -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-[#4A1F2B] border border-[#C9A36A] text-[#E8D9B0] px-4 py-2.5 rounded-lg shadow-2xl text-xs font-display tracking-wide opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2 max-w-sm">
+    <svg class="w-3.5 h-3.5 text-[#C9A36A] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span id="toast-text">Notificación</span>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. BIBLIOTECA DE SÍMBOLOS ARCANOS MINIMALISTAS (TRAZO 1.5, SIN EMOJIS)
+       ========================================================================= */
+    const SYMBOLS_LIB = {
+      moon: {
+        name: "Luna Creciente",
+        category: "witchy",
+        render: (col) => `
+          <g>
+            <path d="M12 3a9 9 0 1 0 7.8 13.5A7.5 7.5 0 0 1 12 3z" stroke="${col}" stroke-width="1.6" fill="${col}" fill-opacity="0.18" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="16" cy="8" r="1" fill="${col}"/>
+          </g>
+        `
+      },
+      triple_moon: {
+        name: "Triple Diosa (Hécate)",
+        category: "witchy",
+        render: (col) => `
+          <g>
+            <!-- Luna Menguante Izquierda -->
+            <path d="M7 6a6 6 0 0 0 0 12 4.8 4.8 0 0 1 0-12z" stroke="${col}" stroke-width="1.4" fill="${col}" fill-opacity="0.2"/>
+            <!-- Luna Llena Central -->
+            <circle cx="12" cy="12" r="5.5" stroke="${col}" stroke-width="1.5" fill="${col}" fill-opacity="0.12"/>
+            <circle cx="12" cy="12" r="2" fill="${col}"/>
+            <!-- Luna Creciente Derecha -->
+            <path d="M17 6a6 6 0 0 1 0 12 4.8 4.8 0 0 0 0-12z" stroke="${col}" stroke-width="1.4" fill="${col}" fill-opacity="0.2"/>
+          </g>
+        `
+      },
+      sun: {
+        name: "Sol Arcano",
+        category: "witchy",
+        render: (col) => `
+          <g>
+            <circle cx="12" cy="12" r="4.5" stroke="${col}" stroke-width="1.5" fill="${col}" fill-opacity="0.25"/>
+            <circle cx="12" cy="12" r="1.5" fill="${col}"/>
+            <line x1="12" y1="2" x2="12" y2="4.5" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="12" y1="19.5" x2="12" y2="22" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="2" y1="12" x2="4.5" y2="12" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="19.5" y1="12" x2="22" y2="12" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="5" y1="5" x2="7" y2="7" stroke="${col}" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="17" y1="17" x2="19" y2="19" stroke="${col}" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="5" y1="19" x2="7" y2="17" stroke="${col}" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="17" y1="7" x2="19" y2="5" stroke="${col}" stroke-width="1.2" stroke-linecap="round"/>
+          </g>
+        `
+      },
+      star_diamond: {
+        name: "Estrella & Chispas",
+        category: "witchy",
+        render: (col) => `
+          <g>
+            <path d="M12 2 L14 9.5 L21.5 12 L14 14.5 L12 22 L10 14.5 L2.5 12 L10 9.5 Z" stroke="${col}" stroke-width="1.5" fill="${col}" fill-opacity="0.2" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="1.2" fill="${col}"/>
+            <circle cx="4" cy="5" r="0.8" fill="${col}"/>
+            <circle cx="20" cy="5" r="0.8" fill="${col}"/>
+          </g>
+        `
+      },
+      butterfly: {
+        name: "Mariposa de Psique",
+        category: "mind",
+        render: (col) => `
+          <g>
+            <line x1="12" y1="6" x2="12" y2="18" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="12" cy="5" r="0.9" fill="${col}"/>
+            <path d="M12 7 C8 3 4 5 4 10 C4 13 8 15 12 11" stroke="${col}" stroke-width="1.4" fill="${col}" fill-opacity="0.15" stroke-linecap="round"/>
+            <path d="M12 7 C16 3 20 5 20 10 C20 13 16 15 12 11" stroke="${col}" stroke-width="1.4" fill="${col}" fill-opacity="0.15" stroke-linecap="round"/>
+            <path d="M12 12 C9 14 7 17 8 19 C10 20 12 17 12 15" stroke="${col}" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+            <path d="M12 12 C15 14 17 17 16 19 C14 20 12 17 12 15" stroke="${col}" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+          </g>
+        `
+      },
+      lotus: {
+        name: "Flor de Loto",
+        category: "mind",
+        render: (col) => `
+          <g>
+            <path d="M12 5 C10 8 9 12 9 17 C11 16 13 16 15 17 C15 12 14 8 12 5 Z" stroke="${col}" stroke-width="1.5" fill="${col}" fill-opacity="0.2"/>
+            <path d="M9 17 C6 16 3.5 13.5 4 10 C7 9.5 9 12 9 17 Z" stroke="${col}" stroke-width="1.3" fill="none"/>
+            <path d="M15 17 C18 16 20.5 13.5 20 10 C17 9.5 15 12 15 17 Z" stroke="${col}" stroke-width="1.3" fill="none"/>
+            <circle cx="12" cy="18.5" r="0.9" fill="${col}"/>
+          </g>
+        `
+      },
+      third_eye: {
+        name: "Ojo Arcano",
+        category: "witchy",
+        render: (col) => `
+          <g>
+            <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z" stroke="${col}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="3.2" stroke="${col}" stroke-width="1.4" fill="${col}" fill-opacity="0.25"/>
+            <circle cx="12" cy="12" r="1.2" fill="${col}"/>
+            <line x1="12" y1="2.5" x2="12" y2="4.5" stroke="${col}" stroke-width="1.4" stroke-linecap="round"/>
+          </g>
+        `
+      },
+      rhombus_seal: {
+        name: "Sello Alquímico",
+        category: "general",
+        render: (col) => `
+          <g>
+            <polygon points="12,4 19,12 12,20 5,12" stroke="${col}" stroke-width="1.5" fill="${col}" fill-opacity="0.15" stroke-linejoin="round"/>
+            <polygon points="12,7 16.5,12 12,17 7.5,12" stroke="${col}" stroke-width="1.1" fill="none"/>
+            <circle cx="12" cy="12" r="1.5" fill="${col}"/>
+          </g>
+        `
+      }
+    };
+
+    /* =========================================================================
+       2. TIPOS DE LÍNEAS LATERALES DORADAS
+       ========================================================================= */
+    const LINES_LIB = {
+      gradient_fade: {
+        name: "Degradado Suave",
+        desc: "Línea clásica que se desvanece suavemente hacia los extremos",
+        renderLeft: (col, gradId) => `
+          <line x1="0" y1="20" x2="100%" y2="20" stroke="url(#${gradId}-left)" stroke-width="1.4"/>
+          <circle cx="98%" cy="20" r="1.8" fill="${col}"/>
+        `,
+        renderRight: (col, gradId) => `
+          <circle cx="2%" cy="20" r="1.8" fill="${col}"/>
+          <line x1="0" y1="20" x2="100%" y2="20" stroke="url(#${gradId}-right)" stroke-width="1.4"/>
+        `
+      },
+      double_lines: {
+        name: "Doble Línea Fina",
+        desc: "Dos líneas finas paralelas con terminaciones en rombo",
+        renderLeft: (col, gradId) => `
+          <line x1="10%" y1="18" x2="100%" y2="18" stroke="url(#${gradId}-left)" stroke-width="1"/>
+          <line x1="20%" y1="22" x2="96%" y2="22" stroke="url(#${gradId}-left)" stroke-width="1"/>
+          <polygon points="100%,20 95%,17 90%,20 95%,23" fill="${col}"/>
+        `,
+        renderRight: (col, gradId) => `
+          <polygon points="0%,20 5%,17 10%,20 5%,23" fill="${col}"/>
+          <line x1="0" y1="18" x2="90%" y2="18" stroke="url(#${gradId}-right)" stroke-width="1"/>
+          <line x1="4%" y1="22" x2="80%" y2="22" stroke="url(#${gradId}-right)" stroke-width="1"/>
+        `
+      },
+      celestial_dots: {
+        name: "Punteado Estelar",
+        desc: "Trazos discontinuos salpicados con puntos astrales",
+        renderLeft: (col, gradId) => `
+          <line x1="0" y1="20" x2="100%" y2="20" stroke="url(#${gradId}-left)" stroke-width="1.5" stroke-dasharray="6 4 2 4"/>
+          <circle cx="85%" cy="20" r="2" fill="${col}"/>
+          <circle cx="50%" cy="20" r="1.4" fill="${col}"/>
+        `,
+        renderRight: (col, gradId) => `
+          <circle cx="15%" cy="20" r="2" fill="${col}"/>
+          <circle cx="50%" cy="20" r="1.4" fill="${col}"/>
+          <line x1="0" y1="20" x2="100%" y2="20" stroke="url(#${gradId}-right)" stroke-width="1.5" stroke-dasharray="2 4 6 4"/>
+        `
+      },
+      filigree_brackets: {
+        name: "Filigrana Clásica",
+        desc: "Curvas envolventes que abrazan el símbolo central",
+        renderLeft: (col, gradId) => `
+          <line x1="0" y1="20" x2="85%" y2="20" stroke="url(#${gradId}-left)" stroke-width="1.2"/>
+          <path d="M 85% 20 Q 94% 20 96% 14 Q 98% 20 100% 20" stroke="${col}" stroke-width="1.3" fill="none"/>
+        `,
+        renderRight: (col, gradId) => `
+          <path d="M 0% 20 Q 2% 20 4% 14 Q 6% 20 15% 20" stroke="${col}" stroke-width="1.3" fill="none"/>
+          <line x1="15%" y1="20" x2="100%" y2="20" stroke="url(#${gradId}-right)" stroke-width="1.2"/>
+        `
+      }
+    };
+
+    /* =========================================================================
+       3. ESTADO & CONFIGURACIÓN ACTIVA
+       ========================================================================= */
+    const GOLD_COLORS = {
+      arenisca: "#C9A36A",
+      cafe: "#A8864C",
+      beige: "#E8D9B0"
+    };
+
+    // Parámetros URL para embeber directamente con opciones específicas
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialSymbol = urlParams.get('symbol') || 'moon';
+    const initialLine = urlParams.get('style') || 'gradient_fade';
+    const initialTone = urlParams.get('tone') || 'arenisca';
+    const isCleanModeRequested = urlParams.get('clean') === 'true';
+
+    let currentSymbolKey = SYMBOLS_LIB[initialSymbol] ? initialSymbol : 'moon';
+    let currentLineKey = LINES_LIB[initialLine] ? initialLine : 'gradient_fade';
+    let currentToneKey = GOLD_COLORS[initialTone] ? initialTone : 'arenisca';
+    let hasGlowEffect = urlParams.get('glow') !== 'false';
+    let currentWidth = 'medium'; // 'compact', 'medium', 'full'
+    let isCleanPreview = isCleanModeRequested;
+
+    /* =========================================================================
+       4. GENERADOR CENTRAL DE CÓDIGO SVG
+       ========================================================================= */
+    function generateDividerSvg() {
+      const col = GOLD_COLORS[currentToneKey];
+      const symbolData = SYMBOLS_LIB[currentSymbolKey] || SYMBOLS_LIB.moon;
+      const lineData = LINES_LIB[currentLineKey] || LINES_LIB.gradient_fade;
+      const gradId = "divider-grad-" + Math.random().toString(36).substring(2, 7);
+
+      let maxWClass = "w-full max-w-xl";
+      if (currentWidth === 'compact') maxWClass = "w-full max-w-md";
+      if (currentWidth === 'full') maxWClass = "w-full max-w-4xl";
+
+      const glowClass = hasGlowEffect ? "divider-glow pulse-flame" : "";
+
+      return `
+        <div class="${maxWClass} flex items-center justify-center select-none ${glowClass}">
+          <svg viewBox="0 0 800 40" class="w-full h-auto overflow-visible" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Degradado izquierdo hacia el centro -->
+              <linearGradient id="${gradId}-left" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="${col}" stop-opacity="0"/>
+                <stop offset="60%" stop-color="${col}" stop-opacity="0.65"/>
+                <stop offset="100%" stop-color="${col}" stop-opacity="1"/>
+              </linearGradient>
+              
+              <!-- Degradado derecho desde el centro -->
+              <linearGradient id="${gradId}-right" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="${col}" stop-opacity="1"/>
+                <stop offset="40%" stop-color="${col}" stop-opacity="0.65"/>
+                <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Línea Izquierda -->
+            <svg x="0" y="0" width="375" height="40">
+              ${lineData.renderLeft(col, gradId)}
+            </svg>
+
+            <!-- Símbolo Central (Escala 24x24 centrado en 400, 20) -->
+            <g transform="translate(388, 8)">
+              ${symbolData.render(col)}
+            </g>
+
+            <!-- Línea Derecha -->
+            <svg x="425" y="0" width="375" height="40">
+              ${lineData.renderRight(col, gradId)}
+            </svg>
+          </svg>
+        </div>
+      `;
+    }
+
+    function updateLivePreview() {
+      const target = document.getElementById('live-divider-target');
+      const cleanTarget = document.getElementById('clean-divider-target');
+      const svgHtml = generateDividerSvg();
+
+      if (target) target.innerHTML = svgHtml;
+      if (cleanTarget) cleanTarget.innerHTML = svgHtml;
+
+      const label = document.getElementById('current-symbol-label');
+      if (label && SYMBOLS_LIB[currentSymbolKey]) {
+        label.textContent = SYMBOLS_LIB[currentSymbolKey].name;
+      }
+    }
+
+    /* =========================================================================
+       5. RENDERIZADO DE CONTROLES Y SELECTORES
+       ========================================================================= */
+    function renderSymbolsGrid() {
+      const grid = document.getElementById('symbols-selector-grid');
+      if (!grid) return;
+
+      const col = GOLD_COLORS[currentToneKey];
+      grid.innerHTML = Object.keys(SYMBOLS_LIB).map(key => {
+        const item = SYMBOLS_LIB[key];
+        const isSelected = key === currentSymbolKey;
+
+        return `
+          <button onclick="selectSymbol('${key}')" 
+                  class="p-2.5 rounded-lg border transition-all flex flex-col items-center justify-center text-center group ${
+                    isSelected 
+                      ? 'bg-[#4A1F2B] border-[#C9A36A] shadow-[0_0_12px_rgba(201,163,106,0.35)]' 
+                      : 'bg-[#15131C]/90 border-[#A8864C]/30 hover:border-[#C9A36A]/60'
+                  }">
+            <div class="w-8 h-8 flex items-center justify-center transition-transform group-hover:scale-110">
+              <svg viewBox="0 0 24 24" class="w-6 h-6 overflow-visible" fill="none">
+                ${item.render(col)}
+              </svg>
+            </div>
+            <span class="text-[10px] font-display uppercase tracking-wider mt-1 truncate w-full ${
+              isSelected ? 'text-[#E8D9B0] font-bold' : 'text-[#C9A36A]/80'
+            }">
+              ${item.name}
+            </span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderLinesGrid() {
+      const grid = document.getElementById('lines-selector-grid');
+      if (!grid) return;
+
+      grid.innerHTML = Object.keys(LINES_LIB).map(key => {
+        const item = LINES_LIB[key];
+        const isSelected = key === currentLineKey;
+
+        return `
+          <button onclick="selectLine('${key}')" 
+                  class="p-2.5 rounded-lg border text-left transition-all ${
+                    isSelected 
+                      ? 'bg-[#4A1F2B] border-[#C9A36A] shadow-[0_0_12px_rgba(201,163,106,0.35)]' 
+                      : 'bg-[#15131C]/90 border-[#A8864C]/30 hover:border-[#C9A36A]/60'
+                  }">
+            <span class="block font-display text-xs uppercase tracking-wider font-semibold ${
+              isSelected ? 'text-[#E8D9B0]' : 'text-[#C9A36A]'
+            }">
+              ${item.name}
+            </span>
+            <span class="block font-serif italic text-[11px] text-[#E8D9B0]/70 mt-0.5 leading-snug">
+              ${item.desc}
+            </span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectSymbol(key) {
+      currentSymbolKey = key;
+      renderSymbolsGrid();
+      updateLivePreview();
+    }
+
+    function selectLine(key) {
+      currentLineKey = key;
+      renderLinesGrid();
+      updateLivePreview();
+    }
+
+    function setGoldTone(tone) {
+      currentToneKey = tone;
+      ['arenisca', 'cafe', 'beige'].forEach(t => {
+        const btn = document.getElementById(`tone-${t}`);
+        if (btn) {
+          if (t === tone) {
+            btn.className = "px-2.5 py-1 rounded text-xs font-display flex items-center gap-1.5 border border-[#C9A36A] bg-[#4A1F2B] text-[#E8D9B0]";
+          } else {
+            btn.className = "px-2.5 py-1 rounded text-xs font-display flex items-center gap-1.5 border border-[#A8864C]/30 bg-[#15131C] text-[#C9A36A]";
+          }
+        }
+      });
+      renderSymbolsGrid();
+      updateLivePreview();
+    }
+
+    function toggleGlowEffect() {
+      hasGlowEffect = !hasGlowEffect;
+      const btn = document.getElementById('btn-toggle-glow');
+      if (btn) {
+        btn.textContent = hasGlowEffect ? 'Activado' : 'Desactivado';
+        btn.className = hasGlowEffect
+          ? "px-2.5 py-1 rounded text-xs font-display uppercase tracking-wider bg-[#2C5242] border border-[#C9A36A]/50 text-[#E8D9B0]"
+          : "px-2.5 py-1 rounded text-xs font-display uppercase tracking-wider bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A]";
+      }
+      updateLivePreview();
+    }
+
+    function setDividerWidth(w) {
+      currentWidth = w;
+      ['compact', 'medium', 'full'].forEach(s => {
+        const btn = document.getElementById(`w-${s}`);
+        if (btn) {
+          if (s === w) {
+            btn.className = "px-2 py-0.5 rounded text-[10px] font-display bg-[#4A1F2B] text-[#E8D9B0] border border-[#C9A36A]";
+          } else {
+            btn.className = "px-2 py-0.5 rounded text-[10px] font-display bg-[#15131C] text-[#C9A36A] border border-[#A8864C]/30";
+          }
+        }
+      });
+      updateLivePreview();
+    }
+
+    /* =========================================================================
+       6. EXPORTACIÓN: COPIAR SVG, COPIAR LINK EMBED Y DESCARGAR PNG
+       ========================================================================= */
+    function copySvgCode() {
+      const col = GOLD_COLORS[currentToneKey];
+      const symbolData = SYMBOLS_LIB[currentSymbolKey] || SYMBOLS_LIB.moon;
+      const lineData = LINES_LIB[currentLineKey] || LINES_LIB.gradient_fade;
+      const gradId = "divider-grad-" + Math.random().toString(36).substring(2, 7);
+
+      const pureSvg = `<svg viewBox="0 0 800 40" width="100%" height="40" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="${gradId}-left" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="${col}" stop-opacity="0"/>
+      <stop offset="60%" stop-color="${col}" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="${col}" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="${gradId}-right" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="${col}" stop-opacity="1"/>
+      <stop offset="40%" stop-color="${col}" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <svg x="0" y="0" width="375" height="40">${lineData.renderLeft(col, gradId)}</svg>
+  <g transform="translate(388, 8)">${symbolData.render(col)}</g>
+  <svg x="425" y="0" width="375" height="40">${lineData.renderRight(col, gradId)}</svg>
+</svg>`;
+
+      copyTextToClipboard(pureSvg);
+      showToast("¡Código SVG copiado al portapapeles!");
+    }
+
+    function copyEmbedUrl() {
+      const currentUrl = window.location.href.split('?')[0];
+      const embedUrl = `${currentUrl}?symbol=${currentSymbolKey}&style=${currentLineKey}&tone=${currentToneKey}&glow=${hasGlowEffect}&clean=true`;
+      copyTextToClipboard(embedUrl);
+      showToast("¡Link para Notion (/embed) copiado!");
+    }
+
+    function toggleCleanPreview() {
+      isCleanPreview = !isCleanPreview;
+      applyCleanMode(isCleanPreview);
+      const btn = document.getElementById('btn-toggle-preview');
+      if (btn) btn.textContent = isCleanPreview ? "Mostrar Controles" : "Vista Aislada";
+    }
+
+    function applyCleanMode(isClean) {
+      const fullUi = document.getElementById('full-interface-container');
+      const cleanWrapper = document.getElementById('clean-preview-wrapper');
+      if (isClean) {
+        document.body.classList.add('standalone-divider');
+        if (fullUi) fullUi.classList.add('hidden');
+        if (cleanWrapper) cleanWrapper.classList.remove('hidden');
+      } else {
+        document.body.classList.remove('standalone-divider');
+        if (fullUi) fullUi.classList.remove('hidden');
+        if (cleanWrapper) cleanWrapper.classList.add('hidden');
+      }
+      updateLivePreview();
+    }
+
+    function downloadDividerPng() {
+      const canvas = document.getElementById('download-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = 1200;
+      const h = 120;
+      canvas.width = w;
+      canvas.height = h;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Convert SVG string to Image and draw to canvas
+      const col = GOLD_COLORS[currentToneKey];
+      const symbolData = SYMBOLS_LIB[currentSymbolKey];
+      const lineData = LINES_LIB[currentLineKey];
+      const gradId = "png-grad";
+
+      const rawSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 800 40">
+        <defs>
+          <linearGradient id="${gradId}-left" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="${col}" stop-opacity="0"/>
+            <stop offset="60%" stop-color="${col}" stop-opacity="0.65"/>
+            <stop offset="100%" stop-color="${col}" stop-opacity="1"/>
+          </linearGradient>
+          <linearGradient id="${gradId}-right" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="${col}" stop-opacity="1"/>
+            <stop offset="40%" stop-color="${col}" stop-opacity="0.65"/>
+            <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <svg x="0" y="0" width="375" height="40">${lineData.renderLeft(col, gradId)}</svg>
+        <g transform="translate(388, 8)">${symbolData.render(col)}</g>
+        <svg x="425" y="0" width="375" height="40">${lineData.renderRight(col, gradId)}</svg>
+      </svg>`;
+
+      const img = new Image();
+      const svgBlob = new Blob([rawSvg], { type: 'image/svg+xml;charset=utf-8' });
+      const URL = window.URL || window.webkitURL || window;
+      const blobURL = URL.createObjectURL(svgBlob);
+
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(blobURL);
+
+        canvas.toBlob(blob => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `divisor_dorado_${currentSymbolKey}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          showToast(`Divisor descargado: divisor_dorado_${currentSymbolKey}.png`);
+        }, 'image/png');
+      };
+      img.src = blobURL;
+    }
+
+    /* =========================================================================
+       7. HELPERS: COPIAR Y TOAST
+       ========================================================================= */
+    function copyTextToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {}
+      document.body.removeChild(textArea);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      if (!toast || !text) return;
+
+      text.textContent = msg;
+      toast.style.opacity = '1';
+      toast.style.pointerEvents = 'auto';
+
+      clearTimeout(window._toastTimeout);
+      window._toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+      }, 2600);
+    }
+
+    /* =========================================================================
+       8. INICIALIZACIÓN
+       ========================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSymbolsGrid();
+      renderLinesGrid();
+      setGoldTone(currentToneKey);
+
+      if (isCleanModeRequested) {
+        applyCleanMode(true);
+      } else {
+        updateLivePreview();
+      }
+    });
+  </script>
+</body>
+</html>
