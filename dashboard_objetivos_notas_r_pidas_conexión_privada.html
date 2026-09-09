@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Objetivos & Notas Rápidas • Notion Block</title>
+  <title>Objetivos & Notas Rápidas • Cloud Sync Notion Block</title>
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Google Fonts: Cinzel & Cormorant Garamond -->
@@ -102,12 +102,9 @@
 
   <div class="max-w-6xl mx-auto space-y-4">
 
-    <!-- ========================================================================= -->
-    <!-- BLOQUE UNIFICADO: OBJETIVO & HÁBITOS (IZQ) + NOTAS RÁPIDAS (DER)          -->
-    <!-- ========================================================================= -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-      <!-- WIDGET 1: OBJETIVO & HÁBITOS DIARIOS (CON MAPA DE CALOR) -->
+      <!-- WIDGET 1: OBJETIVO & HÁBITOS DIARIOS -->
       <div class="grimoire-card rounded-xl p-4 sm:p-5 flex flex-col justify-between">
         
         <div class="flex items-center justify-between pb-2 border-b border-[#A8864C]/25">
@@ -122,8 +119,15 @@
             <h2 class="font-display text-sm uppercase tracking-wider text-[#E8D9B0] font-semibold">Objetivo & Hábitos</h2>
           </div>
 
-          <!-- Pestañas Lista / Gráficos y Botón Nuevo Día -->
+          <!-- Pestañas Lista / Gráficos, Nube y Botón Nuevo Día -->
           <div class="flex items-center gap-1.5">
+            <button onclick="openCloudModal()" id="btn-cloud-sync"
+                    class="px-2 py-1 rounded bg-[#15131C] hover:bg-[#1C342B] border border-[#A8864C]/35 text-[#C9A36A] hover:text-[#E8D9B0] transition-colors flex items-center gap-1 text-[10px] font-display uppercase tracking-wider cursor-pointer"
+                    title="Sincronización en la nube (PC, móvil y tablet)">
+              <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-[#A8864C] animate-pulse"></span>
+              <span id="cloud-status-label" class="hidden sm:inline">Nube</span>
+            </button>
+
             <div class="flex bg-[#15131C] p-0.5 rounded border border-[#A8864C]/30 text-[10px] font-display uppercase">
               <button onclick="switchHabitsTab('list')" id="tab-btn-habits-list" class="px-2 py-0.5 rounded tab-active text-[#E8D9B0] transition-colors">Lista</button>
               <button onclick="switchHabitsTab('charts')" id="tab-btn-habits-charts" class="px-2 py-0.5 rounded text-[#C9A36A] hover:text-[#E8D9B0] transition-colors">Gráficos</button>
@@ -142,20 +146,15 @@
           </div>
         </div>
 
-        <!-- VISTA A: LISTA INTERACTIVA (POR DEFECTO) -->
         <div id="habits-view-list" class="space-y-3 mt-3">
-          <!-- Prioridad del Día (Establecer / Establecido) -->
           <div>
             <div class="flex items-center justify-between mb-1">
               <span class="text-[11px] font-display uppercase tracking-wider text-[#C9A36A]">Prioridad del Día</span>
               <span id="goal-state-label" class="text-[10px] font-mono text-[#C9A36A]/70"></span>
             </div>
-            <div id="daily-goal-container">
-              <!-- Rendered by JS -->
-            </div>
+            <div id="daily-goal-container"></div>
           </div>
 
-          <!-- Barra de Progreso de Hábitos de Hoy -->
           <div class="pt-1">
             <div class="flex justify-between items-center text-xs mb-1">
               <span class="text-[11px] font-display uppercase tracking-wider text-[#C9A36A]">Rituales de Hoy</span>
@@ -167,12 +166,8 @@
             </div>
           </div>
 
-          <!-- Lista Dinámica de Hábitos -->
-          <div id="habits-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-            <!-- Rendered by JS -->
-          </div>
+          <div id="habits-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
 
-          <!-- Input para Añadir Nuevo Hábito -->
           <form onsubmit="handleAddNewHabit(event)" class="flex gap-1.5 pt-1">
             <input type="text" id="new-habit-text" placeholder="Nuevo hábito o ritual..." required
                    class="glass-input flex-grow rounded px-2.5 py-1.5 text-xs text-[#E8D9B0] placeholder-[#E8D9B0]/30">
@@ -182,14 +177,11 @@
           </form>
         </div>
 
-        <!-- VISTA B: MÉTRICAS, MAPA DE CALOR (28 DÍAS) & GRÁFICO -->
         <div id="habits-view-charts" class="hidden space-y-3 mt-3">
           
-          <!-- MAPA DE CALOR: 4 SEMANAS (28 DÍAS) -->
           <div class="bg-[#15131C]/90 rounded-lg p-2.5 border border-[#A8864C]/25">
             <div class="flex items-center justify-between mb-2">
               <span class="text-[10px] font-display uppercase tracking-wider text-[#C9A36A]">Mapa de Calor (28 Días)</span>
-              <!-- Leyenda con colores de la paleta -->
               <div class="flex items-center gap-1 text-[8px] font-mono text-[#C9A36A]/70">
                 <span>0%</span>
                 <span class="w-2 h-2 rounded-sm bg-[#15131C] border border-[#A8864C]/20"></span>
@@ -201,31 +193,19 @@
               </div>
             </div>
 
-            <!-- Días de la semana -->
             <div class="grid grid-cols-7 gap-1 text-center text-[9px] font-mono text-[#C9A36A]/70 mb-1">
               <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
             </div>
 
-            <!-- Matriz de 28 casillas -->
-            <div id="heatmap-grid" class="grid grid-cols-7 gap-1">
-              <!-- Rendered by JS -->
-            </div>
+            <div id="heatmap-grid" class="grid grid-cols-7 gap-1"></div>
           </div>
 
-          <!-- GRÁFICO DE BARRAS DE LOS ÚLTIMOS 7 DÍAS -->
           <div class="bg-[#15131C]/90 rounded-lg p-2.5 border border-[#A8864C]/25">
             <span class="text-[10px] font-display uppercase tracking-wider text-[#C9A36A] block mb-2">Evolución de la Semana</span>
-            
-            <div id="week-bar-chart" class="flex items-end justify-between h-20 pt-2 px-2 gap-2 border-b border-[#A8864C]/20">
-              <!-- Rendered by JS -->
-            </div>
-            
-            <div id="week-bar-labels" class="flex justify-between text-[9px] font-mono text-[#C9A36A]/70 px-2 mt-1">
-              <!-- Rendered by JS -->
-            </div>
+            <div id="week-bar-chart" class="flex items-end justify-between h-20 pt-2 px-2 gap-2 border-b border-[#A8864C]/20"></div>
+            <div id="week-bar-labels" class="flex justify-between text-[9px] font-mono text-[#C9A36A]/70 px-2 mt-1"></div>
           </div>
 
-          <!-- KPIs Rápidos -->
           <div class="grid grid-cols-3 gap-2 text-center text-xs">
             <div class="bg-[#15131C] p-1.5 rounded border border-[#A8864C]/20">
               <span id="stat-streak" class="block font-bold text-sm text-[#E8D9B0]">0 días</span>
@@ -245,12 +225,10 @@
 
       </div>
 
-      <!-- WIDGET 2: NOTAS RÁPIDAS (FONDO TRANSPARENTE, SIN PIES NI DESCRIPCIONES) -->
       <div class="grimoire-card rounded-xl p-4 sm:p-5 flex flex-col justify-between" style="background: transparent; box-shadow: none;">
         
         <div class="flex items-center justify-between pb-2 border-b border-[#A8864C]/25">
           <div class="flex items-center gap-2">
-            <!-- Icono Minimalista de Manuscrito SVG -->
             <div class="p-1.5 rounded bg-transparent border border-[#A8864C]/40 text-[#C9A36A]">
               <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -263,21 +241,18 @@
             <h2 class="font-display text-sm uppercase tracking-wider text-[#E8D9B0] font-semibold">Notas Rápidas</h2>
           </div>
 
-          <!-- Indicador de guardado reactivo -->
           <div class="flex items-center gap-1.5 text-[10px] font-mono text-[#C9A36A]">
             <span id="notes-indicator" class="w-1.5 h-1.5 rounded-full bg-[#2C5242]"></span>
             <span id="notes-status">Guardado</span>
           </div>
         </div>
 
-        <!-- Área de escritura con fondo transparente -->
         <div class="my-2 flex-grow">
           <textarea id="quick-notes-area" rows="6" 
                     placeholder="Escribe pensamientos, referencias o ideas fugaces para clasificar luego en Notion..." 
                     class="w-full bg-transparent border border-[#A8864C]/35 hover:border-[#C9A36A]/60 focus:border-[#C9A36A] rounded-lg p-3 text-xs sm:text-sm text-[#E8D9B0] placeholder-[#E8D9B0]/30 focus:outline-none transition-colors resize-none leading-relaxed"></textarea>
         </div>
 
-        <!-- Barra de herramientas: Contadores y Acciones -->
         <div class="pt-2 border-t border-[#A8864C]/20 flex items-center justify-between text-xs">
           <div class="text-[#C9A36A]/75 font-serif italic text-[11px] flex items-center gap-2">
             <span id="notes-char-count">0 caracteres</span>
@@ -286,6 +261,16 @@
           </div>
 
           <div class="flex items-center gap-1.5">
+            <button onclick="insertTimestamp()" 
+                    class="px-2 py-1 rounded bg-transparent hover:bg-[#15131C] text-[#C9A36A] hover:text-[#E8D9B0] border border-[#A8864C]/30 font-display text-[10px] uppercase tracking-wider transition-colors flex items-center gap-1"
+                    title="Insertar fecha y hora actual">
+              <svg class="w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>Hora</span>
+            </button>
+
             <button onclick="copyQuickNotes()" 
                     class="px-2.5 py-1 rounded bg-transparent hover:bg-[#2C5242] text-[#E8D9B0] border border-[#A8864C]/30 font-display text-[10px] uppercase tracking-wider transition-colors flex items-center gap-1">
               <svg class="w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -312,7 +297,107 @@
 
   </div>
 
-  <!-- Toast Notification Global -->
+  <div id="cloud-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="grimoire-card rounded-xl max-w-lg w-full p-5 sm:p-6 border border-[#C9A36A] shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-[#A8864C]/30">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-lg bg-[#15131C] border border-[#C9A36A]/40 text-[#C9A36A]">
+            <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-display text-sm sm:text-base uppercase tracking-wider text-[#E8D9B0] font-bold">
+              Bóveda en la Nube • Objetivos & Notas
+            </h3>
+            <span class="text-[11px] font-serif italic text-[#C9A36A]">Sincroniza tus hábitos, metas y notas entre dispositivos</span>
+          </div>
+        </div>
+        <button onclick="closeCloudModal()" class="p-1 rounded bg-[#15131C] hover:bg-[#4A1F2B] text-[#C9A36A] hover:text-[#E8D9B0] text-sm px-2 transition-colors">✕</button>
+      </div>
+
+      <div class="p-3 rounded-lg bg-[#15131C]/90 border border-[#A8864C]/30 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-display uppercase tracking-wider text-[#C9A36A]">Identificador de Bóveda:</span>
+          <span id="modal-vault-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#2C5242] text-[#E8D9B0]">Activa</span>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <input type="text" id="modal-vault-key-input" placeholder="Ej: laura-notion-vault" 
+                 class="glass-input flex-grow rounded px-3 py-1.5 text-xs font-mono text-[#E8D9B0] placeholder-[#E8D9B0]/30 focus:outline-none">
+          <button onclick="applyManualVaultKey()" 
+                  class="px-3 py-1.5 rounded bg-[#2C5242] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] font-display text-[11px] uppercase tracking-wider font-semibold border border-[#C9A36A]/40 transition-colors flex-shrink-0">
+            Conectar
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-[#C9A36A]/80 font-serif italic pt-1">
+          <span>Usa el mismo nombre que en tus otros widgets:</span>
+          <button onclick="generateNewRandomVault()" class="text-[#E8D9B0] hover:text-[#C9A36A] underline font-display text-[10px] uppercase tracking-wider">
+            ✨ Generar Clave
+          </button>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-lg bg-[#15131C]/90 border border-[#A8864C]/30 space-y-2">
+        <span class="text-xs font-display uppercase tracking-wider text-[#C9A36A] block font-semibold">
+          Enlace Mágico para Notion (/embed):
+        </span>
+        <p class="text-[11px] text-[#E8D9B0]/80 italic">
+          Copia este enlace y pégalo en Notion con <code class="text-[#C9A36A]">/embed</code>. Al incluir tu clave de bóveda, <strong>tu móvil, tablet y PC compartirán siempre tus hábitos y notas automáticamente</strong>.
+        </p>
+
+        <div class="flex items-center gap-2">
+          <input type="text" id="modal-embed-url" readonly 
+                 class="glass-input flex-grow rounded px-3 py-1.5 text-[11px] font-mono text-[#C9A36A] select-all cursor-pointer bg-black/50"
+                 onclick="this.select()">
+          <button onclick="copyEmbedUrl()" 
+                  class="px-3 py-1.5 rounded bg-[#6B2F41] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] font-display text-[11px] uppercase tracking-wider font-semibold border border-[#C9A36A] transition-colors flex-shrink-0 flex items-center gap-1">
+            <svg class="w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span>Copiar</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+        <button onclick="forceCloudPull()" 
+                class="p-2 rounded bg-[#15131C] hover:bg-[#1C342B] border border-[#A8864C]/40 text-[#E8D9B0] font-display text-[11px] uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Bajar de la Nube</span>
+        </button>
+
+        <button onclick="forceCloudPush()" 
+                class="p-2 rounded bg-[#15131C] hover:bg-[#4A1F2B] border border-[#A8864C]/40 text-[#E8D9B0] font-display text-[11px] uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span>Subir a la Nube</span>
+        </button>
+      </div>
+
+      <div class="pt-2 border-t border-[#A8864C]/20 flex items-center justify-between text-xs">
+        <span class="font-serif italic text-[#C9A36A]/80">Copia de respaldo manual:</span>
+        <div class="flex gap-2">
+          <button onclick="exportBackupJson()" class="text-[#E8D9B0] hover:text-[#C9A36A] underline font-display text-[10px] uppercase">Exportar</button>
+          <span class="text-[#A8864C]/40">•</span>
+          <button onclick="importBackupJsonPrompt()" class="text-[#E8D9B0] hover:text-[#C9A36A] underline font-display text-[10px] uppercase">Importar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Global -->
   <div id="toast" class="fixed bottom-4 right-4 bg-[#4A1F2B] border border-[#C9A36A] text-[#E8D9B0] px-4 py-2.5 rounded-lg shadow-2xl text-xs font-display tracking-wide opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2 max-w-sm">
     <svg class="w-3.5 h-3.5 text-[#C9A36A] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="20 6 9 17 4 12"/>
@@ -321,16 +406,20 @@
   </div>
 
   <script>
-    /* =========================================================================
-       1. OBJETIVO & HÁBITOS (PRIORIDAD FIJADA, LISTA, HÁBITOS, HEATMAP & GRÁFICO)
-       ========================================================================= */
-    const KEY_GOAL = 'notion_daily_goal_pomo_v2';
-    const KEY_GOAL_COMPLETED = 'notion_goal_done_pomo_v2';
-    const KEY_HABITS = 'notion_habits_pomo_v2';
-    const KEY_HABIT_HISTORY = 'notion_habit_history_v2';
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageId = urlParams.get('id') || 'default';
+    const urlParamVault = urlParams.get('vault');
 
-    let dailyGoal = localStorage.getItem(KEY_GOAL) || '';
-    let goalCompleted = localStorage.getItem(KEY_GOAL_COMPLETED) === 'true';
+    const KEY_GOAL = `notion_daily_goal_pomo_v2_${pageId}`;
+    const KEY_GOAL_COMPLETED = `notion_goal_done_pomo_v2_${pageId}`;
+    const KEY_HABITS = `notion_habits_pomo_v2_${pageId}`;
+    const KEY_HABIT_HISTORY = `notion_habit_history_v2_${pageId}`;
+    const STORAGE_KEY_NOTES = `notion_scratchpad_v3_${pageId}`;
+    const STORAGE_KEY_VAULT = `notion_cloud_vault_obj_${pageId}`;
+    const STORAGE_KEY_TIMESTAMP = `notion_cloud_updated_obj_${pageId}`;
+
+    let dailyGoal = localStorage.getItem(KEY_GOAL) || (pageId === 'default' ? (localStorage.getItem('notion_daily_goal_pomo_v2') || '') : '');
+    let goalCompleted = localStorage.getItem(KEY_GOAL_COMPLETED) === 'true' || (pageId === 'default' && localStorage.getItem('notion_goal_done_pomo_v2') === 'true');
     let isEditingGoal = !dailyGoal;
 
     const DEFAULT_HABITS = [
@@ -342,13 +431,257 @@
 
     let habits = [];
     try {
-      const stored = localStorage.getItem(KEY_HABITS);
+      const stored = localStorage.getItem(KEY_HABITS) || (pageId === 'default' ? localStorage.getItem('notion_habits_pomo_v2') : null);
       habits = stored ? JSON.parse(stored) : DEFAULT_HABITS;
     } catch (e) {
       habits = DEFAULT_HABITS;
     }
 
     let editingHabitId = null;
+    let localUpdatedAt = parseInt(localStorage.getItem(STORAGE_KEY_TIMESTAMP) || '0', 10);
+
+    let vaultKey = urlParamVault || localStorage.getItem(STORAGE_KEY_VAULT) || `boveda_${pageId}`;
+    if (urlParamVault) {
+      localStorage.setItem(STORAGE_KEY_VAULT, urlParamVault);
+    }
+
+    const KV_BUCKET_ID = "k8qM7pZ2vX";
+    const CLOUD_SYNC_DEBOUNCE = 800;
+    let cloudSyncTimer = null;
+
+    function getCloudEndpoint(key) {
+      const cleanKey = encodeURIComponent(`notion_obj_${key.trim().toLowerCase()}`);
+      return `https://kvdb.io/${KV_BUCKET_ID}/${cleanKey}`;
+    }
+
+    function updateCloudStatusBadge(status) {
+      const dot = document.getElementById('cloud-status-dot');
+      const label = document.getElementById('cloud-status-label');
+
+      if (status === 'synced') {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-[#2C5242]";
+        if (label) label.textContent = "Al día";
+      } else if (status === 'saving') {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-[#A8864C] animate-ping";
+        if (label) label.textContent = "Guardando...";
+      } else if (status === 'pulling') {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-[#C9A36A] animate-pulse";
+        if (label) label.textContent = "Descargando";
+      } else if (status === 'error') {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-[#6B2F41]";
+        if (label) label.textContent = "Local";
+      }
+    }
+
+    function getSyncPayload() {
+      const notesVal = document.getElementById('quick-notes-area')?.value || localStorage.getItem(STORAGE_KEY_NOTES) || '';
+      return {
+        version: 1,
+        updatedAt: Date.now(),
+        pageId: pageId,
+        dailyGoal: dailyGoal,
+        goalCompleted: goalCompleted,
+        habits: habits,
+        history: getHistoryData(),
+        notes: notesVal
+      };
+    }
+
+    async function pushToCloud(silent = true) {
+      if (!vaultKey) return;
+      updateCloudStatusBadge('saving');
+
+      const payload = getSyncPayload();
+      localUpdatedAt = payload.updatedAt;
+      localStorage.setItem(STORAGE_KEY_TIMESTAMP, String(localUpdatedAt));
+
+      try {
+        const url = getCloudEndpoint(vaultKey);
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          updateCloudStatusBadge('synced');
+          if (!silent) showToast("Hábitos y notas guardados en la nube");
+        } else {
+          updateCloudStatusBadge('error');
+        }
+      } catch (err) {
+        updateCloudStatusBadge('error');
+      }
+    }
+
+    function triggerDebouncedCloudSync() {
+      clearTimeout(cloudSyncTimer);
+      updateCloudStatusBadge('saving');
+      cloudSyncTimer = setTimeout(() => {
+        pushToCloud(true);
+      }, CLOUD_SYNC_DEBOUNCE);
+    }
+
+    async function pullFromCloud(silent = true) {
+      if (!vaultKey) return;
+      updateCloudStatusBadge('pulling');
+
+      try {
+        const url = getCloudEndpoint(vaultKey);
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (res.status === 404) {
+          await pushToCloud(true);
+          updateCloudStatusBadge('synced');
+          return;
+        }
+
+        if (res.ok) {
+          const cloudData = await res.json();
+          if (cloudData && cloudData.updatedAt && cloudData.updatedAt > localUpdatedAt) {
+            applyIncomingSyncData(cloudData);
+            if (!silent) showToast("¡Objetivos y notas sincronizados!");
+          }
+          updateCloudStatusBadge('synced');
+        } else {
+          updateCloudStatusBadge('error');
+        }
+      } catch (err) {
+        updateCloudStatusBadge('error');
+      }
+    }
+
+    function applyIncomingSyncData(data) {
+      if (typeof data.dailyGoal === 'string') {
+        dailyGoal = data.dailyGoal;
+        localStorage.setItem(KEY_GOAL, dailyGoal);
+      }
+      if (typeof data.goalCompleted === 'boolean') {
+        goalCompleted = data.goalCompleted;
+        localStorage.setItem(KEY_GOAL_COMPLETED, String(goalCompleted));
+      }
+      renderDailyGoal();
+
+      if (Array.isArray(data.habits)) {
+        habits = data.habits;
+        localStorage.setItem(KEY_HABITS, JSON.stringify(habits));
+        renderHabitsList();
+      }
+
+      if (data.history && typeof data.history === 'object') {
+        localStorage.setItem(KEY_HABIT_HISTORY, JSON.stringify(data.history));
+        const viewCharts = document.getElementById('habits-view-charts');
+        if (viewCharts && !viewCharts.classList.contains('hidden')) {
+          renderHeatmapAndCharts();
+        }
+      }
+
+      if (typeof data.notes === 'string') {
+        const notesArea = document.getElementById('quick-notes-area');
+        if (notesArea && document.activeElement !== notesArea) {
+          notesArea.value = data.notes;
+          localStorage.setItem(STORAGE_KEY_NOTES, data.notes);
+          updateNotesCounters(data.notes);
+        }
+      }
+
+      localUpdatedAt = data.updatedAt || Date.now();
+      localStorage.setItem(STORAGE_KEY_TIMESTAMP, String(localUpdatedAt));
+    }
+
+    function forceCloudPull() {
+      pullFromCloud(false);
+      closeCloudModal();
+    }
+
+    function forceCloudPush() {
+      pushToCloud(false);
+      closeCloudModal();
+    }
+
+    function openCloudModal() {
+      const modal = document.getElementById('cloud-modal');
+      const input = document.getElementById('modal-vault-key-input');
+      if (!modal) return;
+
+      if (input) input.value = vaultKey;
+      updateModalEmbedLink();
+      modal.classList.remove('hidden');
+    }
+
+    function closeCloudModal() {
+      const modal = document.getElementById('cloud-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function updateModalEmbedLink() {
+      const embedInput = document.getElementById('modal-embed-url');
+      if (!embedInput) return;
+
+      const baseUrl = window.location.href.split('?')[0];
+      const params = new URLSearchParams();
+      if (pageId !== 'default') params.set('id', pageId);
+      params.set('vault', vaultKey);
+
+      embedInput.value = `${baseUrl}?${params.toString()}`;
+    }
+
+    function applyManualVaultKey() {
+      const input = document.getElementById('modal-vault-key-input');
+      if (!input) return;
+      const val = input.value.trim().replace(/\s+/g, '_');
+      if (val) {
+        vaultKey = val;
+        localStorage.setItem(STORAGE_KEY_VAULT, vaultKey);
+        updateModalEmbedLink();
+        showToast(`Bóveda conectada: "${vaultKey}"`);
+        pullFromCloud(false);
+      }
+    }
+
+    function generateNewRandomVault() {
+      const rand = Math.random().toString(36).substring(2, 8);
+      vaultKey = `laura_${pageId}_${rand}`;
+      localStorage.setItem(STORAGE_KEY_VAULT, vaultKey);
+      
+      const input = document.getElementById('modal-vault-key-input');
+      if (input) input.value = vaultKey;
+      updateModalEmbedLink();
+      showToast("Nueva clave generada");
+      pushToCloud(false);
+    }
+
+    function copyEmbedUrl() {
+      const embedInput = document.getElementById('modal-embed-url');
+      if (!embedInput) return;
+      embedInput.select();
+      document.execCommand('copy');
+      showToast("¡Enlace copiado! Pégalo en Notion con /embed");
+    }
+
+    function exportBackupJson() {
+      const payload = getSyncPayload();
+      navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => {
+        showToast("Copia de respaldo JSON copiada");
+      });
+    }
+
+    function importBackupJsonPrompt() {
+      const raw = prompt("Pega aquí el código JSON de tu copia de respaldo:");
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        applyIncomingSyncData(parsed);
+        triggerDebouncedCloudSync();
+        showToast("¡Copia importada y sincronizada!");
+        closeCloudModal();
+      } catch (e) {
+        showToast("Error: Formato JSON inválido");
+      }
+    }
 
     function renderDailyGoal() {
       const container = document.getElementById('daily-goal-container');
@@ -356,12 +689,11 @@
       if (!container) return;
 
       if (!dailyGoal || isEditingGoal) {
-        // MODO REDACCIÓN
         if (label) label.textContent = 'En redacción';
         container.innerHTML = `
           <form onsubmit="saveDailyGoal(event)" class="flex gap-1.5">
             <input type="text" id="goal-input-field" value="${escapeHtml(dailyGoal)}" 
-                   placeholder="Ej: Finalizar la propuesta de diseño y avanzar lectura..." 
+                   placeholder="Ej: Finalizar la propuesta de diseño..." 
                    class="glass-input flex-grow rounded px-3 py-1.5 text-xs sm:text-sm text-[#E8D9B0] placeholder-[#E8D9B0]/30">
             <button type="submit" 
                     class="font-display text-[11px] uppercase tracking-wider px-3 py-1.5 rounded bg-[#6B2F41] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] border border-[#C9A36A]/50 font-semibold transition-colors flex items-center gap-1 flex-shrink-0">
@@ -379,7 +711,6 @@
         `;
         setTimeout(() => document.getElementById('goal-input-field')?.focus(), 30);
       } else {
-        // MODO ESTABLECIDO (PLACA LIMPIA NO EN CONTINUA EDICIÓN)
         if (label) label.textContent = goalCompleted ? 'Cumplido' : 'Foco activo';
         container.innerHTML = `
           <div class="flex items-center justify-between p-2.5 rounded-lg border ${
@@ -426,6 +757,7 @@
       isEditingGoal = false;
       localStorage.setItem(KEY_GOAL, dailyGoal);
       renderDailyGoal();
+      triggerDebouncedCloudSync();
       showToast("Prioridad del día establecida");
     }
 
@@ -444,6 +776,7 @@
       localStorage.setItem(KEY_GOAL_COMPLETED, String(goalCompleted));
       renderDailyGoal();
       recordTodayHabitStats();
+      triggerDebouncedCloudSync();
       showToast(goalCompleted ? "¡Prioridad del día cumplida!" : "Prioridad marcada como pendiente");
     }
 
@@ -454,6 +787,7 @@
       localStorage.removeItem(KEY_GOAL);
       localStorage.removeItem(KEY_GOAL_COMPLETED);
       renderDailyGoal();
+      triggerDebouncedCloudSync();
       showToast("Objetivo eliminado");
     }
 
@@ -477,7 +811,6 @@
 
       list.innerHTML = habits.map(h => {
         if (editingHabitId === h.id) {
-          // Edición en línea
           return `
             <div class="flex items-center gap-1.5 p-1.5 bg-[#15131C] border border-[#C9A36A] rounded">
               <input type="text" id="input-edit-habit-${h.id}" value="${escapeHtml(h.text)}" 
@@ -522,6 +855,7 @@
         localStorage.setItem(KEY_HABITS, JSON.stringify(habits));
         renderHabitsList();
         recordTodayHabitStats();
+        triggerDebouncedCloudSync();
       }
     }
 
@@ -541,6 +875,7 @@
       editingHabitId = null;
       localStorage.setItem(KEY_HABITS, JSON.stringify(habits));
       renderHabitsList();
+      triggerDebouncedCloudSync();
       showToast("Hábito actualizado");
     }
 
@@ -554,6 +889,7 @@
       localStorage.setItem(KEY_HABITS, JSON.stringify(habits));
       renderHabitsList();
       recordTodayHabitStats();
+      triggerDebouncedCloudSync();
       showToast("Hábito eliminado");
     }
 
@@ -573,6 +909,7 @@
       inp.value = '';
       renderHabitsList();
       recordTodayHabitStats();
+      triggerDebouncedCloudSync();
       showToast("Nuevo hábito registrado");
     }
 
@@ -583,6 +920,8 @@
       localStorage.setItem(KEY_GOAL_COMPLETED, 'false');
       renderDailyGoal();
       renderHabitsList();
+      recordTodayHabitStats();
+      triggerDebouncedCloudSync();
       showToast("Rituales desmarcados para un nuevo día");
     }
 
@@ -646,14 +985,12 @@
         days.push(d);
       }
 
-      // 1. Render Heatmap (28 Días)
       if (grid) {
         grid.innerHTML = days.map(d => {
           const key = d.toISOString().split('T')[0];
           const entry = hist[key];
           const pct = entry ? entry.pct : 0;
 
-          // Color según escala de la paleta
           let bgCol = "bg-[#15131C] border border-[#A8864C]/25";
           if (pct > 0 && pct <= 30) bgCol = "bg-[#4A1F2B]";
           else if (pct > 30 && pct <= 60) bgCol = "bg-[#6B2F41]";
@@ -669,7 +1006,6 @@
         }).join('');
       }
 
-      // 2. Gráfico de barras de los últimos 7 días
       const last7 = days.slice(21);
       if (barChart && barLabels) {
         barChart.innerHTML = last7.map(d => {
@@ -693,7 +1029,6 @@
         `).join('');
       }
 
-      // 3. KPIs
       let streak = 0;
       let totalCompletedCount = 0;
       let sumPct = 0;
@@ -708,7 +1043,6 @@
         }
       });
 
-      // Cálculo de racha actual hacia atrás
       for (let i = days.length - 1; i >= 0; i--) {
         const key = days[i].toISOString().split('T')[0];
         if (hist[key] && hist[key].pct > 0) {
@@ -731,10 +1065,6 @@
       if (totalEl) totalEl.textContent = String(totalCompletedCount);
     }
 
-    /* =========================================================================
-       2. NOTAS RÁPIDAS (MANUSCRITO, AUTOGUARDADO REACTIVO & CONTADORES)
-       ========================================================================= */
-    const STORAGE_KEY_NOTES = 'notion_scratchpad_v3';
     const notesArea = document.getElementById('quick-notes-area');
     const notesIndicator = document.getElementById('notes-indicator');
     const notesStatus = document.getElementById('notes-status');
@@ -751,7 +1081,7 @@
     }
 
     function loadNotes() {
-      const saved = localStorage.getItem(STORAGE_KEY_NOTES) || '';
+      const saved = localStorage.getItem(STORAGE_KEY_NOTES) || (pageId === 'default' ? localStorage.getItem('notion_scratchpad_v3') : '') || '';
       if (notesArea) {
         notesArea.value = saved;
         updateNotesCounters(saved);
@@ -770,8 +1100,33 @@
           localStorage.setItem(STORAGE_KEY_NOTES, notesArea.value);
           if (notesStatus) notesStatus.textContent = 'Guardado';
           if (notesIndicator) notesIndicator.className = 'w-1.5 h-1.5 rounded-full bg-[#2C5242]';
+          triggerDebouncedCloudSync();
         }, 400);
       });
+    }
+
+    function insertTimestamp() {
+      if (!notesArea) return;
+      const now = new Date();
+      const timeStr = now.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      const stamp = `\n— [${timeStr}] `;
+      
+      const start = notesArea.selectionStart;
+      const end = notesArea.selectionEnd;
+      const current = notesArea.value;
+      notesArea.value = current.substring(0, start) + stamp + current.substring(end);
+      notesArea.selectionStart = notesArea.selectionEnd = start + stamp.length;
+      notesArea.focus();
+
+      localStorage.setItem(STORAGE_KEY_NOTES, notesArea.value);
+      updateNotesCounters(notesArea.value);
+      triggerDebouncedCloudSync();
+      showToast("Marca de tiempo insertada");
     }
 
     function copyQuickNotes() {
@@ -792,12 +1147,10 @@
       updateNotesCounters('');
       if (notesStatus) notesStatus.textContent = 'Limpio';
       if (notesIndicator) notesIndicator.className = 'w-1.5 h-1.5 rounded-full bg-[#4A1F2B]';
+      triggerDebouncedCloudSync();
       showToast("Borrador vaciado");
     }
 
-    /* =========================================================================
-       3. HELPER TOAST & ESCAPE HTML
-       ========================================================================= */
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -828,6 +1181,11 @@
       renderDailyGoal();
       renderHabitsList();
       loadNotes();
+      pullFromCloud(true);
+    });
+
+    window.addEventListener('focus', () => {
+      pullFromCloud(true);
     });
   </script>
 </body>
