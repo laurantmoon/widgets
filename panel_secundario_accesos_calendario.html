@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Secundario • Accesos & Calendario</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Cinzel & Cormorant Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'beige-sombrio': '#E8D9B0',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'purpura-marron': '#6B2F41',
+            'marron-violeta': '#4A1F2B',
+            'azul-verde': '#2C5242',
+            'carbon-sombrio': '#1C342B',
+            'notion-dark': '#191919'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #191919;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #191919;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4A1F2B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A8864C;
+    }
+
+    .grimoire-card {
+      background: linear-gradient(145deg, #1C342B 0%, #17241E 55%, #15131C 100%);
+      border: 1px solid rgba(201, 163, 106, 0.32);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.75), 0 0 20px rgba(74, 31, 43, 0.25);
+    }
+
+    .num-tabular {
+      font-variant-numeric: tabular-nums;
+      font-family: 'Cinzel', serif;
+    }
+
+    .glass-input {
+      background: rgba(21, 19, 28, 0.85);
+      border: 1px solid rgba(168, 134, 76, 0.4);
+      color: #E8D9B0;
+      transition: all 0.2s ease;
+    }
+    .glass-input:focus {
+      outline: none;
+      border-color: #C9A36A;
+      box-shadow: 0 0 8px rgba(201, 163, 106, 0.25);
+    }
+
+    .calendar-day {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .calendar-day:hover:not(.empty-day) {
+      background-color: rgba(74, 31, 43, 0.4);
+      border-color: #C9A36A;
+      transform: translateY(-1px);
+    }
+    .calendar-day.selected {
+      background: #4A1F2B !important;
+      border-color: #C9A36A !important;
+      box-shadow: 0 0 10px rgba(201, 163, 106, 0.35);
+    }
+    .calendar-day.today {
+      border: 1px solid #C9A36A;
+      position: relative;
+    }
+    .calendar-day.today::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: #C9A36A;
+      box-shadow: 0 0 5px #E8D9B0;
+    }
+  </style>
+</head>
+
+<body class="p-3 sm:p-5 lg:p-6 min-h-screen">
+
+  <div class="max-w-6xl mx-auto space-y-4">
+
+    <!-- ========================================================================= -->
+    <!-- CABECERA SUPERIOR: DIRECTORIO & PANEL SECUNDARIO                          -->
+    <!-- ========================================================================= -->
+    <div class="grimoire-card rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 border border-[#C9A36A]/35">
+      <div class="flex items-center gap-3.5">
+        <div class="p-2.5 rounded-xl bg-[#15131C] border border-[#C9A36A]/50 text-[#C9A36A] shadow-inner flex-shrink-0">
+          <!-- Icono de Llave Arcana & Compás -->
+          <svg class="w-6 h-6 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+            <circle cx="12" cy="12" r="2" fill="#C9A36A"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-display uppercase tracking-widest text-[#C9A36A] px-2 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/40">
+              Panel Auxiliar
+            </span>
+            <span id="panel-secondary-date" class="text-[11px] font-mono text-[#C9A36A]/80 hidden sm:inline">Fecha</span>
+          </div>
+          <h1 class="font-display text-lg sm:text-xl uppercase tracking-wider font-bold text-[#E8D9B0] mt-0.5">
+            Bóveda de Accesos & Calendario
+          </h1>
+        </div>
+      </div>
+
+      <!-- Contador rápido de eventos agendados este mes -->
+      <div class="flex items-center gap-2 bg-[#15131C]/90 px-3 py-1.5 rounded-lg border border-[#A8864C]/35">
+        <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span id="month-events-badge" class="text-xs font-serif italic text-[#E8D9B0]">0 citas programadas</span>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- FILA 1: ACCESOS & BOTONES SECUNDARIOS (MISMO SISTEMA QUE TERRITORIOS)     -->
+    <!-- ========================================================================= -->
+    <div class="grimoire-card rounded-xl p-4 sm:p-5">
+      <div class="flex items-center justify-between pb-2 border-b border-[#A8864C]/25">
+        <div class="flex items-center gap-2">
+          <div class="p-1.5 rounded bg-[#15131C] border border-[#A8864C]/40 text-[#C9A36A]">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              <line x1="9" y1="7" x2="15" y2="7"/>
+              <line x1="9" y1="11" x2="13" y2="11"/>
+            </svg>
+          </div>
+          <h2 class="font-display text-sm uppercase tracking-wider text-[#E8D9B0] font-semibold">Directorio & Enlaces Rápidos</h2>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Botón Desplegable para Añadir Nuevo Botón -->
+          <button onclick="toggleAddSecondaryForm()" id="btn-toggle-add-secondary"
+                  class="font-display text-[11px] uppercase tracking-wider px-2.5 py-1 rounded bg-[#15131C] hover:bg-[#2C5242] text-[#C9A36A] hover:text-[#E8D9B0] border border-[#A8864C]/35 transition-colors flex items-center gap-1 cursor-pointer">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span>+ Añadir</span>
+          </button>
+
+          <!-- Botón de Edición de Botones Existentes -->
+          <button onclick="toggleEditSecondaryButtons()" id="btn-edit-secondary"
+                  class="font-display text-[11px] uppercase tracking-wider px-2.5 py-1 rounded bg-[#15131C] hover:bg-[#6B2F41] text-[#C9A36A] hover:text-[#E8D9B0] border border-[#A8864C]/35 transition-colors flex items-center gap-1 cursor-pointer">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            <span id="edit-secondary-label">Editar Botones</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulario Desplegable para Añadir Nuevo Botón -->
+      <div id="dropdown-add-secondary-form" class="hidden mt-3 p-3 bg-[#15131C]/90 rounded-lg border border-[#A8864C]/35 transition-all">
+        <form onsubmit="handleAddNewSecondaryButton(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <input type="text" id="new-sec-title" placeholder="Nombre (ej: Biblioteca General)" required
+                 class="glass-input rounded px-2.5 py-1.5 text-xs text-[#E8D9B0] placeholder-[#E8D9B0]/30">
+          <input type="text" id="new-sec-sub" placeholder="Subtítulo (ej: Fichas & Lecturas)"
+                 class="glass-input rounded px-2.5 py-1.5 text-xs text-[#E8D9B0] placeholder-[#E8D9B0]/30">
+          <div class="flex gap-1.5">
+            <input type="url" id="new-sec-url" placeholder="https://notion.so/..." required
+                   class="glass-input rounded px-2.5 py-1.5 text-xs text-[#E8D9B0] placeholder-[#E8D9B0]/30 flex-grow">
+            <button type="submit" class="px-3 py-1.5 rounded bg-[#2C5242] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] font-display text-xs uppercase tracking-wider font-semibold border border-[#C9A36A]/40 transition-colors">
+              Guardar
+            </button>
+            <button type="button" onclick="toggleAddSecondaryForm()" class="px-2 py-1.5 rounded bg-[#15131C] text-[#C9A36A] hover:text-[#E8D9B0] text-xs">
+              ✕
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Cuadrícula de Botones Interactivos -->
+      <div id="secondary-buttons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 mt-3">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- FILA 2: CALENDARIO COMPLETO CON GESTOR DE CITAS Y EVENTOS                  -->
+    <!-- ========================================================================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+      <!-- COLUMNA IZQUIERDA: MATRIZ MENSUAL DEL CALENDARIO (7 cols) -->
+      <div class="lg:col-span-7 grimoire-card rounded-xl p-4 sm:p-5 flex flex-col justify-between">
+        
+        <!-- Barra de Navegación del Calendario -->
+        <div class="flex items-center justify-between pb-3 border-b border-[#A8864C]/25">
+          <div class="flex items-center gap-2">
+            <div class="p-1.5 rounded bg-[#15131C] border border-[#A8864C]/40 text-[#C9A36A]">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <h2 id="calendar-month-year-label" class="font-display text-sm sm:text-base uppercase tracking-wider text-[#E8D9B0] font-bold">
+              Mes Año
+            </h2>
+          </div>
+
+          <!-- Controles de Mes: Anterior, Hoy, Siguiente -->
+          <div class="flex items-center gap-1 bg-[#15131C] p-0.5 rounded-lg border border-[#A8864C]/35 text-xs font-display">
+            <button onclick="navigateMonth(-1)" class="p-1 sm:px-2 rounded hover:bg-[#4A1F2B] text-[#C9A36A] hover:text-[#E8D9B0] transition-colors" title="Mes anterior">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <button onclick="goToCurrentMonth()" class="px-2 py-0.5 rounded bg-[#2C5242] hover:bg-[#6B2F41] text-[#E8D9B0] transition-colors tracking-wider uppercase text-[10px] font-semibold">
+              Hoy
+            </button>
+            <button onclick="navigateMonth(1)" class="p-1 sm:px-2 rounded hover:bg-[#4A1F2B] text-[#C9A36A] hover:text-[#E8D9B0] transition-colors" title="Mes siguiente">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Cabecera de Días de la Semana (Lunes a Domingo) -->
+        <div class="grid grid-cols-7 gap-1 text-center font-display text-[10px] uppercase tracking-wider text-[#C9A36A] font-semibold my-2.5">
+          <span class="py-1">Lun</span>
+          <span class="py-1">Mar</span>
+          <span class="py-1">Mié</span>
+          <span class="py-1">Jue</span>
+          <span class="py-1">Vie</span>
+          <span class="py-1">Sáb</span>
+          <span class="py-1">Dom</span>
+        </div>
+
+        <!-- Matriz de Días del Mes -->
+        <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 sm:gap-1.5 flex-grow">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Leyenda Inferior -->
+        <div class="pt-3 mt-2 border-t border-[#A8864C]/20 flex items-center justify-between text-[11px] text-[#C9A36A]/75 font-serif italic">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#C9A36A]"></span>
+            <span>Hoy</span>
+            <span class="mx-1">•</span>
+            <span class="w-2 h-2 rounded-full bg-[#6B2F41]"></span>
+            <span>Eventos</span>
+          </div>
+          <span>Selecciona un día para ver o añadir eventos</span>
+        </div>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: AGENDA & GESTOR DE EVENTOS DEL DÍA (5 cols) -->
+      <div class="lg:col-span-5 grimoire-card rounded-xl p-4 sm:p-5 flex flex-col justify-between">
+        
+        <!-- Cabecera del Día Seleccionado -->
+        <div>
+          <div class="flex items-center justify-between pb-2 border-b border-[#A8864C]/25">
+            <div>
+              <span class="text-[10px] font-display uppercase tracking-widest text-[#C9A36A] block">Día Seleccionado</span>
+              <h3 id="selected-day-title" class="font-display text-sm uppercase tracking-wider text-[#E8D9B0] font-bold mt-0.5">
+                Cargando...
+              </h3>
+            </div>
+            <span id="selected-day-count-badge" class="font-mono text-[10px] text-[#C9A36A] bg-[#15131C] px-2 py-0.5 rounded border border-[#A8864C]/30">
+              0 eventos
+            </span>
+          </div>
+
+          <!-- Lista de Eventos / Citas del Día Seleccionado -->
+          <div id="selected-day-events-list" class="space-y-2 mt-3 max-h-56 overflow-y-auto pr-1">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Formulario para Añadir Evento en el Día Seleccionado -->
+        <div class="pt-3 border-t border-[#A8864C]/20 mt-3">
+          <span class="text-[10px] font-display uppercase tracking-wider text-[#C9A36A] block mb-1.5 font-semibold">
+            + Añadir Evento / Cita
+          </span>
+          <form onsubmit="handleAddNewEvent(event)" class="space-y-2">
+            <input type="text" id="new-event-title" placeholder="Título (ej: Entrega final, Lectura, Cita médica)" required
+                   class="glass-input w-full rounded px-2.5 py-1.5 text-xs text-[#E8D9B0] placeholder-[#E8D9B0]/30">
+            
+            <div class="grid grid-cols-2 gap-2">
+              <input type="time" id="new-event-time" 
+                     class="glass-input rounded px-2 py-1 text-xs text-[#E8D9B0]" title="Hora (opcional)">
+              
+              <select id="new-event-category" 
+                      class="glass-input rounded px-2 py-1 text-xs text-[#E8D9B0] cursor-pointer">
+                <option value="academico">Académico</option>
+                <option value="personal">Personal</option>
+                <option value="foco">Foco / Proyecto</option>
+                <option value="salud">Salud & Rutina</option>
+              </select>
+            </div>
+
+            <button type="submit" 
+                    class="w-full py-1.5 rounded bg-[#4A1F2B] hover:bg-[#6B2F41] border border-[#C9A36A]/50 text-[#E8D9B0] font-display text-xs uppercase tracking-wider font-semibold transition-colors flex items-center justify-center gap-1.5 shadow">
+              <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span>Agendar Evento</span>
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Toast Notification Global -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-[#4A1F2B] border border-[#C9A36A] text-[#E8D9B0] px-4 py-2.5 rounded-lg shadow-2xl text-xs font-display tracking-wide opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2 max-w-sm">
+    <svg class="w-3.5 h-3.5 text-[#C9A36A] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span id="toast-text">Notificación</span>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. ACCESOS & BOTONES SECUNDARIOS (LOCALSTORAGE & EDICIÓN)
+       ========================================================================= */
+    const STORAGE_KEY_SEC_BUTTONS = 'notion_secondary_buttons_vault_v1';
+    
+    const DEFAULT_SECONDARY_BUTTONS = [
+      { id: 'sb1', title: "Biblioteca General", sub: "Lecturas, Fichas & Grimorio", url: "https://www.notion.so" },
+      { id: 'sb2', title: "Directorio & Contactos", sub: "Red & Referencias", url: "https://www.notion.so" },
+      { id: 'sb3', title: "Finanzas & Presupuestos", sub: "Control Mensual & Gastos", url: "https://www.notion.so" },
+      { id: 'sb4', title: "Inspiración & Moodboards", sub: "Estética & Referentes", url: "https://www.notion.so" },
+      { id: 'sb5', title: "Bóveda de Documentos", sub: "Plantillas & Recursos", url: "https://www.notion.so" },
+      { id: 'sb6', title: "Archivo Cerrado", sub: "Historial de Trimestres", url: "https://www.notion.so" }
+    ];
+
+    let secondaryButtons = [];
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_SEC_BUTTONS);
+      secondaryButtons = stored ? JSON.parse(stored) : DEFAULT_SECONDARY_BUTTONS;
+    } catch (e) {
+      secondaryButtons = DEFAULT_SECONDARY_BUTTONS;
+    }
+
+    let isEditingSecondaryButtons = false;
+
+    function renderSecondaryButtons() {
+      const grid = document.getElementById('secondary-buttons-grid');
+      if (!grid) return;
+
+      grid.innerHTML = secondaryButtons.map((item, idx) => {
+        if (isEditingSecondaryButtons) {
+          return `
+            <div class="bg-[#15131C] p-2.5 rounded-lg border border-[#C9A36A] space-y-1.5 shadow-lg">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-display uppercase text-[#C9A36A]">Acceso #${idx + 1}</span>
+                <button onclick="deleteSecondaryButton('${item.id}')" class="text-[10px] text-[#6B2F41] hover:text-[#C9A36A]">Eliminar</button>
+              </div>
+              <input type="text" value="${escapeHtml(item.title)}" onchange="updateSecondaryButtonField('${item.id}', 'title', this.value)"
+                     class="glass-input w-full rounded px-2 py-1 text-xs text-[#E8D9B0]" placeholder="Título">
+              <input type="text" value="${escapeHtml(item.sub || '')}" onchange="updateSecondaryButtonField('${item.id}', 'sub', this.value)"
+                     class="glass-input w-full rounded px-2 py-1 text-[11px] text-[#E8D9B0]" placeholder="Subtítulo">
+              <input type="url" value="${escapeHtml(item.url)}" onchange="updateSecondaryButtonField('${item.id}', 'url', this.value)"
+                     class="glass-input w-full rounded px-2 py-1 text-[11px] text-[#C9A36A]" placeholder="URL de Notion">
+            </div>
+          `;
+        }
+
+        return `
+          <a href="${item.url}" target="_blank" 
+             class="flex items-center justify-between p-3 rounded-lg border border-[#A8864C]/30 bg-[#15131C]/60 hover:bg-[#6B2F41]/35 hover:border-[#C9A36A] transition-all group shadow-sm">
+            <div class="overflow-hidden mr-2">
+              <span class="block font-display text-xs text-[#E8D9B0] font-semibold truncate group-hover:text-[#E8D9B0]">${escapeHtml(item.title)}</span>
+              <span class="block text-[11px] text-[#C9A36A]/80 italic font-serif truncate">${escapeHtml(item.sub || '')}</span>
+            </div>
+            <div class="p-1 rounded bg-[#1C342B]/50 border border-[#A8864C]/25 text-[#C9A36A] group-hover:border-[#C9A36A] flex-shrink-0 transition-colors">
+              <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </a>
+        `;
+      }).join('');
+    }
+
+    function toggleEditSecondaryButtons() {
+      isEditingSecondaryButtons = !isEditingSecondaryButtons;
+      document.getElementById('edit-secondary-label').textContent = isEditingSecondaryButtons ? 'Guardar Cambios' : 'Editar Botones';
+      renderSecondaryButtons();
+      if (!isEditingSecondaryButtons) {
+        localStorage.setItem(STORAGE_KEY_SEC_BUTTONS, JSON.stringify(secondaryButtons));
+        showToast("Botones guardados exitosamente");
+      }
+    }
+
+    function updateSecondaryButtonField(id, field, val) {
+      const item = secondaryButtons.find(b => b.id === id);
+      if (item) {
+        item[field] = val;
+        localStorage.setItem(STORAGE_KEY_SEC_BUTTONS, JSON.stringify(secondaryButtons));
+      }
+    }
+
+    function deleteSecondaryButton(id) {
+      secondaryButtons = secondaryButtons.filter(b => b.id !== id);
+      localStorage.setItem(STORAGE_KEY_SEC_BUTTONS, JSON.stringify(secondaryButtons));
+      renderSecondaryButtons();
+      showToast("Botón eliminado");
+    }
+
+    function toggleAddSecondaryForm() {
+      const form = document.getElementById('dropdown-add-secondary-form');
+      if (!form) return;
+      form.classList.toggle('hidden');
+      if (!form.classList.contains('hidden')) {
+        setTimeout(() => document.getElementById('new-sec-title')?.focus(), 30);
+      }
+    }
+
+    function handleAddNewSecondaryButton(e) {
+      e.preventDefault();
+      const title = document.getElementById('new-sec-title').value.trim();
+      const sub = document.getElementById('new-sec-sub').value.trim();
+      const url = document.getElementById('new-sec-url').value.trim();
+
+      if (!title || !url) return;
+
+      secondaryButtons.push({
+        id: 'sb_' + Date.now(),
+        title: title,
+        sub: sub,
+        url: url
+      });
+
+      localStorage.setItem(STORAGE_KEY_SEC_BUTTONS, JSON.stringify(secondaryButtons));
+      document.getElementById('new-sec-title').value = '';
+      document.getElementById('new-sec-sub').value = '';
+      document.getElementById('new-sec-url').value = '';
+      toggleAddSecondaryForm();
+      renderSecondaryButtons();
+      showToast("Nuevo botón agregado al directorio");
+    }
+
+    /* =========================================================================
+       2. CALENDARIO COMPLETO & GESTIÓN DE CITAS / EVENTOS
+       ========================================================================= */
+    const STORAGE_KEY_EVENTS = 'notion_secondary_calendar_events_v1';
+
+    let calendarYear = new Date().getFullYear();
+    let calendarMonth = new Date().getMonth(); // 0 a 11
+    let selectedDateKey = formatDateKey(new Date());
+
+    let calendarEvents = {};
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_EVENTS);
+      calendarEvents = stored ? JSON.parse(stored) : {
+        // Evento predeterminado de bienvenida
+        [formatDateKey(new Date())]: [
+          { id: 'ev_init_1', title: "Revisión general de agenda y temas", time: "10:00", category: "academico", done: false }
+        ]
+      };
+    } catch (e) {
+      calendarEvents = {};
+    }
+
+    function formatDateKey(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getMonthName(monthIdx) {
+      const months = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+      return months[monthIdx];
+    }
+
+    function navigateMonth(offset) {
+      calendarMonth += offset;
+      if (calendarMonth < 0) {
+        calendarMonth = 11;
+        calendarYear--;
+      } else if (calendarMonth > 11) {
+        calendarMonth = 0;
+        calendarYear++;
+      }
+      renderCalendar();
+    }
+
+    function goToCurrentMonth() {
+      const now = new Date();
+      calendarYear = now.getFullYear();
+      calendarMonth = now.getMonth();
+      selectedDateKey = formatDateKey(now);
+      renderCalendar();
+      renderSelectedDayEvents();
+    }
+
+    function selectDate(dateKey) {
+      selectedDateKey = dateKey;
+      renderCalendar();
+      renderSelectedDayEvents();
+    }
+
+    function renderCalendar() {
+      const monthYearLabel = document.getElementById('calendar-month-year-label');
+      const grid = document.getElementById('calendar-days-grid');
+      if (!monthYearLabel || !grid) return;
+
+      monthYearLabel.textContent = `${getMonthName(calendarMonth)} ${calendarYear}`;
+
+      const todayKey = formatDateKey(new Date());
+
+      // Primer día del mes: 0 (Domingo) a 6 (Sábado)
+      const firstDay = new Date(calendarYear, calendarMonth, 1);
+      // Ajustar para que la semana empiece en Lunes (0: Lun, 6: Dom)
+      const startDayIndex = (firstDay.getDay() + 6) % 7;
+
+      const totalDaysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+      const totalDaysPrevMonth = new Date(calendarYear, calendarMonth, 0).getDate();
+
+      let daysHtml = '';
+      let monthEventCount = 0;
+
+      // 1. Días del mes anterior (Relleno inicial)
+      for (let i = startDayIndex - 1; i >= 0; i--) {
+        const prevDayNum = totalDaysPrevMonth - i;
+        const prevMonthDate = new Date(calendarYear, calendarMonth - 1, prevDayNum);
+        const prevKey = formatDateKey(prevMonthDate);
+        const hasEvents = calendarEvents[prevKey] && calendarEvents[prevKey].length > 0;
+
+        daysHtml += `
+          <div onclick="selectDate('${prevKey}')" 
+               class="calendar-day p-2 min-h-[44px] sm:min-h-[52px] rounded-lg bg-[#15131C]/35 border border-[#A8864C]/10 opacity-40 cursor-pointer flex flex-col justify-between">
+            <span class="num-tabular text-[10px] font-semibold text-[#E8D9B0]/60">${prevDayNum}</span>
+            ${hasEvents ? `<div class="flex gap-0.5 mt-auto"><span class="w-1.5 h-1.5 rounded-full bg-[#6B2F41]"></span></div>` : ''}
+          </div>
+        `;
+      }
+
+      // 2. Días del mes actual
+      for (let dayNum = 1; dayNum <= totalDaysInMonth; dayNum++) {
+        const thisDate = new Date(calendarYear, calendarMonth, dayNum);
+        const key = formatDateKey(thisDate);
+        const isSelected = key === selectedDateKey;
+        const isToday = key === todayKey;
+        const dayEvents = calendarEvents[key] || [];
+
+        if (dayEvents.length > 0) monthEventCount += dayEvents.length;
+
+        // Marcadores de categoría en miniatura (hasta 3 puntos)
+        let dotsHtml = '';
+        if (dayEvents.length > 0) {
+          dotsHtml = `<div class="flex items-center gap-1 mt-auto">`;
+          dayEvents.slice(0, 3).forEach(ev => {
+            let dotColor = "bg-[#6B2F41]";
+            if (ev.category === "foco") dotColor = "bg-[#C9A36A]";
+            if (ev.category === "salud") dotColor = "bg-[#2C5242]";
+            if (ev.category === "personal") dotColor = "bg-[#A8864C]";
+            dotsHtml += `<span class="w-1.5 h-1.5 rounded-full ${dotColor} ${ev.done ? 'opacity-40' : ''}"></span>`;
+          });
+          if (dayEvents.length > 3) {
+            dotsHtml += `<span class="text-[8px] font-mono text-[#C9A36A] leading-none">+</span>`;
+          }
+          dotsHtml += `</div>`;
+        }
+
+        daysHtml += `
+          <div onclick="selectDate('${key}')" 
+               class="calendar-day p-1.5 sm:p-2 min-h-[46px] sm:min-h-[56px] rounded-lg border cursor-pointer flex flex-col justify-between ${
+                 isSelected 
+                   ? 'selected' 
+                   : (isToday ? 'today bg-[#1C342B]/40' : 'bg-[#15131C]/80 border-[#A8864C]/25')
+               }">
+            <div class="flex items-center justify-between">
+              <span class="num-tabular text-xs sm:text-sm font-bold ${isToday ? 'text-[#C9A36A]' : 'text-[#E8D9B0]'}">${dayNum}</span>
+              ${dayEvents.length > 0 ? `<span class="text-[9px] font-mono text-[#C9A36A]/80">${dayEvents.length}</span>` : ''}
+            </div>
+            ${dotsHtml}
+          </div>
+        `;
+      }
+
+      // 3. Días del mes siguiente (Completar cuadrícula de 35 o 42 casillas)
+      const totalCellsFilled = startDayIndex + totalDaysInMonth;
+      const remainingCells = (totalCellsFilled <= 35) ? (35 - totalCellsFilled) : (42 - totalCellsFilled);
+
+      for (let nextDayNum = 1; nextDayNum <= remainingCells; nextDayNum++) {
+        const nextMonthDate = new Date(calendarYear, calendarMonth + 1, nextDayNum);
+        const nextKey = formatDateKey(nextMonthDate);
+        const hasEvents = calendarEvents[nextKey] && calendarEvents[nextKey].length > 0;
+
+        daysHtml += `
+          <div onclick="selectDate('${nextKey}')" 
+               class="calendar-day p-2 min-h-[44px] sm:min-h-[52px] rounded-lg bg-[#15131C]/35 border border-[#A8864C]/10 opacity-40 cursor-pointer flex flex-col justify-between">
+            <span class="num-tabular text-[10px] font-semibold text-[#E8D9B0]/60">${nextDayNum}</span>
+            ${hasEvents ? `<div class="flex gap-0.5 mt-auto"><span class="w-1.5 h-1.5 rounded-full bg-[#6B2F41]"></span></div>` : ''}
+          </div>
+        `;
+      }
+
+      grid.innerHTML = daysHtml;
+
+      const badge = document.getElementById('month-events-badge');
+      if (badge) {
+        badge.textContent = `${monthEventCount} ${monthEventCount === 1 ? 'cita programada' : 'citas programadas'}`;
+      }
+    }
+
+    function renderSelectedDayEvents() {
+      const titleEl = document.getElementById('selected-day-title');
+      const countEl = document.getElementById('selected-day-count-badge');
+      const listEl = document.getElementById('selected-day-events-list');
+
+      if (!titleEl || !listEl) return;
+
+      // Parsear la fecha seleccionada
+      const parts = selectedDateKey.split('-');
+      const dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+
+      const formattedDay = dObj.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      });
+      titleEl.textContent = formattedDay;
+
+      const events = calendarEvents[selectedDateKey] || [];
+      if (countEl) countEl.textContent = `${events.length} ${events.length === 1 ? 'evento' : 'eventos'}`;
+
+      if (events.length === 0) {
+        listEl.innerHTML = `
+          <div class="text-center p-4 rounded-lg bg-[#15131C]/60 border border-dashed border-[#A8864C]/25 text-xs italic text-[#C9A36A]/60">
+            Sin citas ni eventos agendados para este día. Usa el formulario inferior para agregar uno.
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = events.map(ev => {
+        let tagBadgeClass = "bg-[#6B2F41] text-[#E8D9B0]";
+        let tagLabel = "Académico";
+
+        if (ev.category === "personal") { tagBadgeClass = "bg-[#A8864C] text-[#15131C]"; tagLabel = "Personal"; }
+        else if (ev.category === "foco") { tagBadgeClass = "bg-[#4A1F2B] text-[#C9A36A]"; tagLabel = "Foco"; }
+        else if (ev.category === "salud") { tagBadgeClass = "bg-[#2C5242] text-[#E8D9B0]"; tagLabel = "Salud"; }
+
+        return `
+          <div class="group flex items-center justify-between p-2.5 rounded-lg bg-[#15131C]/80 hover:bg-[#15131C] border border-[#A8864C]/25 transition-all">
+            <div class="flex items-center gap-2 overflow-hidden mr-2">
+              <input type="checkbox" ${ev.done ? 'checked' : ''} onchange="toggleEventDone('${ev.id}')"
+                     class="w-3.5 h-3.5 accent-[#6B2F41] rounded cursor-pointer flex-shrink-0">
+              <div class="overflow-hidden">
+                <span class="block text-xs truncate ${ev.done ? 'line-through text-[#C9A36A]/50 italic' : 'text-[#E8D9B0] font-medium'}">
+                  ${escapeHtml(ev.title)}
+                </span>
+                <div class="flex items-center gap-2 mt-0.5 text-[10px]">
+                  ${ev.time ? `<span class="font-mono text-[#C9A36A]/80">${ev.time} hs</span>` : ''}
+                  <span class="px-1.5 py-0.2 rounded text-[9px] font-display uppercase tracking-wider font-semibold ${tagBadgeClass}">${tagLabel}</span>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="deleteCalendarEvent('${ev.id}')" 
+                    class="p-1 text-[#6B2F41] hover:text-[#C9A36A] opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    title="Eliminar evento">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleAddNewEvent(e) {
+      e.preventDefault();
+      const title = document.getElementById('new-event-title').value.trim();
+      const time = document.getElementById('new-event-time').value;
+      const category = document.getElementById('new-event-category').value;
+
+      if (!title) return;
+
+      if (!calendarEvents[selectedDateKey]) {
+        calendarEvents[selectedDateKey] = [];
+      }
+
+      calendarEvents[selectedDateKey].push({
+        id: 'ev_' + Date.now(),
+        title: title,
+        time: time || '',
+        category: category,
+        done: false
+      });
+
+      localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(calendarEvents));
+      document.getElementById('new-event-title').value = '';
+      document.getElementById('new-event-time').value = '';
+
+      renderCalendar();
+      renderSelectedDayEvents();
+      showToast("Evento agendado en el calendario");
+    }
+
+    function toggleEventDone(id) {
+      const list = calendarEvents[selectedDateKey];
+      if (!list) return;
+      const ev = list.find(e => e.id === id);
+      if (ev) {
+        ev.done = !ev.done;
+        localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(calendarEvents));
+        renderCalendar();
+        renderSelectedDayEvents();
+      }
+    }
+
+    function deleteCalendarEvent(id) {
+      if (!calendarEvents[selectedDateKey]) return;
+      calendarEvents[selectedDateKey] = calendarEvents[selectedDateKey].filter(e => e.id !== id);
+      if (calendarEvents[selectedDateKey].length === 0) {
+        delete calendarEvents[selectedDateKey];
+      }
+      localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(calendarEvents));
+      renderCalendar();
+      renderSelectedDayEvents();
+      showToast("Evento eliminado");
+    }
+
+    /* =========================================================================
+       3. HELPERS & TOAST
+       ========================================================================= */
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      if (!toast || !text) return;
+
+      text.textContent = msg;
+      toast.style.opacity = '1';
+      toast.style.pointerEvents = 'auto';
+
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+      }, 2400);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const now = new Date();
+      const dateEl = document.getElementById('panel-secondary-date');
+      if (dateEl) {
+        dateEl.textContent = now.toLocaleDateString('es-ES', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        }).toUpperCase();
+      }
+
+      renderSecondaryButtons();
+      renderCalendar();
+      renderSelectedDayEvents();
+    });
+  </script>
+</body>
+</html>

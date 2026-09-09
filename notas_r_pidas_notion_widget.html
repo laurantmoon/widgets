@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notas Rápidas • Notion Widget</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Cinzel & Cormorant Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'beige-sombrio': '#E8D9B0',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'purpura-marron': '#6B2F41',
+            'marron-violeta': '#4A1F2B',
+            'azul-verde': '#2C5242',
+            'carbon-sombrio': '#1C342B'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #15131C;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .widget-box {
+      background: linear-gradient(145deg, #1C342B 0%, #17241E 60%, #15131C 100%);
+      border: 1px solid rgba(201, 163, 106, 0.3);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(74, 31, 43, 0.25);
+      width: 100%;
+      max-width: 560px;
+      position: relative;
+    }
+    textarea {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      line-height: 1.6;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #15131C;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4A1F2B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A8864C;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="widget-box rounded-xl p-4 sm:p-6 space-y-4">
+    
+    <!-- Widget Header with Manuscript Icon -->
+    <div class="flex items-center justify-between pb-3 border-b border-[#A8864C]/25">
+      <div class="flex items-center gap-2.5">
+        <!-- Minimalist Manuscript Paper SVG Icon -->
+        <div class="p-2 rounded-lg bg-[#15131C]/80 border border-[#A8864C]/40 text-[#C9A36A] shadow-inner">
+          <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Manuscript Paper Sheet -->
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <!-- Folded Corner -->
+            <polyline points="14 2 14 8 20 8"/>
+            <!-- Written Text Lines -->
+            <line x1="8" y1="13" x2="16" y2="13"/>
+            <line x1="8" y1="17" x2="13" y2="17"/>
+            <!-- Wax Seal Accent Dot -->
+            <circle cx="16" cy="17" r="1" fill="#C9A36A"/>
+          </svg>
+        </div>
+        
+        <div>
+          <h2 class="font-display text-base sm:text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold leading-tight">
+            Notas Rápidas
+          </h2>
+          <span class="text-[11px] font-serif italic text-[#C9A36A]/80 block">Borrador Efímero & Registro de Ideas</span>
+        </div>
+      </div>
+
+      <!-- Live Save Status Indicator -->
+      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#15131C]/80 border border-[#A8864C]/30 text-[11px] font-display uppercase tracking-wider">
+        <span id="save-indicator" class="w-1.5 h-1.5 rounded-full bg-[#2C5242] transition-colors"></span>
+        <span id="save-status-text" class="text-[#C9A36A]">Guardado</span>
+      </div>
+    </div>
+
+    <div class="relative">
+      <textarea id="scratchpad-input" 
+                rows="7" 
+                placeholder="Escribe pensamientos, referencias o ideas fugaces para clasificar luego en Notion..." 
+                class="w-full bg-[#15131C]/85 border border-[#A8864C]/35 hover:border-[#C9A36A]/60 focus:border-[#C9A36A] rounded-lg p-3.5 text-sm text-[#E8D9B0] placeholder-[#E8D9B0]/30 focus:outline-none transition-colors resize-none shadow-inner"></textarea>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-1 border-t border-[#A8864C]/20 text-xs">
+      
+      <!-- Word and Character Counter -->
+      <div class="text-[#C9A36A]/75 font-serif italic text-[11px] flex items-center gap-2">
+        <span id="char-counter">0 caracteres</span>
+        <span>•</span>
+        <span id="word-counter">0 palabras</span>
+      </div>
+
+      <!-- Action Buttons: Copy, Clear, Stamp -->
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+        
+        <!-- Copy to Clipboard Button -->
+        <button onclick="copyNotes()" 
+                class="px-2.5 py-1.5 rounded bg-[#15131C]/80 hover:bg-[#2C5242] text-[#E8D9B0] border border-[#A8864C]/30 font-display text-[10px] uppercase tracking-wider transition-colors flex items-center gap-1"
+                title="Copiar texto al portapapeles">
+          <svg class="w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span>Copiar</span>
+        </button>
+
+        <!-- Clear Notes Button -->
+        <button onclick="clearNotes()" 
+                class="px-2.5 py-1.5 rounded bg-[#15131C]/80 hover:bg-[#6B2F41] text-[#E8D9B0] border border-[#A8864C]/30 font-display text-[10px] uppercase tracking-wider transition-colors flex items-center gap-1"
+                title="Limpiar bloc de notas">
+          <svg class="w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span>Limpiar</span>
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id="toast" class="fixed bottom-4 right-4 bg-[#4A1F2B] border border-[#C9A36A] text-[#E8D9B0] px-3.5 py-2 rounded-lg text-xs font-display tracking-wide shadow-2xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2">
+    <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span id="toast-text">Notificación</span>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'notion_scratchpad_v1';
+    const textarea = document.getElementById('scratchpad-input');
+    const statusText = document.getElementById('save-status-text');
+    const statusIndicator = document.getElementById('save-indicator');
+    const charCounter = document.getElementById('char-counter');
+    const wordCounter = document.getElementById('word-counter');
+
+    let debounceTimer = null;
+
+    function updateCounters(text) {
+      const chars = text.length;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      charCounter.textContent = `${chars} caracteres`;
+      wordCounter.textContent = `${words} palabras`;
+    }
+
+    function loadNotes() {
+      const saved = localStorage.getItem(STORAGE_KEY) || '';
+      textarea.value = saved;
+      updateCounters(saved);
+    }
+
+    textarea.addEventListener('input', () => {
+      // Set status to writing
+      statusText.textContent = 'Escribiendo...';
+      statusIndicator.className = 'w-1.5 h-1.5 rounded-full bg-[#A8864C] animate-pulse';
+
+      updateCounters(textarea.value);
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        localStorage.setItem(STORAGE_KEY, textarea.value);
+        statusText.textContent = 'Guardado';
+        statusIndicator.className = 'w-1.5 h-1.5 rounded-full bg-[#2C5242]';
+      }, 400);
+    });
+
+    function copyNotes() {
+      if (!textarea.value.trim()) {
+        showToast("No hay texto para copiar");
+        return;
+      }
+      textarea.select();
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges();
+      showToast("Texto copiado al portapapeles");
+    }
+
+    function clearNotes() {
+      if (!textarea.value.trim()) return;
+      textarea.value = '';
+      localStorage.removeItem(STORAGE_KEY);
+      updateCounters('');
+      statusText.textContent = 'Limpio';
+      statusIndicator.className = 'w-1.5 h-1.5 rounded-full bg-[#4A1F2B]';
+      showToast("Bloc de notas vaciado");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      if (!toast || !text) return;
+
+      text.textContent = msg;
+      toast.style.opacity = '1';
+      toast.style.pointerEvents = 'auto';
+
+      clearTimeout(window._toastTimeout);
+      window._toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+      }, 2200);
+    }
+
+    window.addEventListener('DOMContentLoaded', loadNotes);
+  </script>
+</body>
+</html>

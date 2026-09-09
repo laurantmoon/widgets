@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objetivo & Hábitos Diarios • Notion Widget</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Cinzel & Cormorant Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'beige-sombrio': '#E8D9B0',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'purpura-marron': '#6B2F41',
+            'marron-violeta': '#4A1F2B',
+            'azul-verde': '#2C5242',
+            'carbon-sombrio': '#1C342B'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #15131C;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .widget-box {
+      background: linear-gradient(145deg, #1C342B 0%, #17241E 60%, #15131C 100%);
+      border: 1px solid rgba(201, 163, 106, 0.3);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(74, 31, 43, 0.25);
+      width: 100%;
+      max-width: 560px;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #15131C;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4A1F2B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A8864C;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="widget-box rounded-xl p-4 sm:p-6 space-y-4">
+    
+    <!-- Widget Header -->
+    <div class="flex items-center justify-between pb-3 border-b border-[#A8864C]/25">
+      <div class="flex items-center gap-2.5">
+        <div class="p-1.5 rounded bg-[#15131C]/70 border border-[#A8864C]/40 text-[#C9A36A]">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="font-display text-base sm:text-lg tracking-wider text-[#E8D9B0] uppercase font-semibold">
+            Objetivo & Hábitos
+          </h2>
+        </div>
+      </div>
+
+      <!-- Quick Action: Reset Daily Checkmarks -->
+      <button onclick="resetDayCheckmarks()" 
+              class="flex items-center gap-1.5 text-[11px] font-display uppercase tracking-wider px-2.5 py-1.5 rounded bg-[#15131C]/80 hover:bg-[#6B2F41] text-[#C9A36A] hover:text-[#E8D9B0] border border-[#A8864C]/30 transition-colors"
+              title="Desmarcar todos los hábitos para un nuevo día">
+        <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+          <path d="M21 3v5h-5"/>
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+          <path d="M3 21v-5h5"/>
+        </svg>
+        <span class="hidden sm:inline">Nuevo Día</span>
+      </button>
+    </div>
+
+    <!-- SECTION 1: OBJETIVO DEL DÍA (Establecer / Vista Establecida) -->
+    <div>
+      <div class="flex items-center justify-between mb-1.5">
+        <label class="text-xs uppercase font-display tracking-wider text-[#C9A36A] font-semibold flex items-center gap-1.5">
+          <span>Prioridad del Día</span>
+        </label>
+        <span id="goal-status-badge" class="text-[10px] font-display uppercase tracking-wider text-[#C9A36A]/70"></span>
+      </div>
+
+      <!-- Container switched between editable form and established view -->
+      <div id="goal-container"></div>
+    </div>
+
+    <!-- SECTION 2: HÁBITOS DIARIOS -->
+    <div class="space-y-3 pt-2 border-t border-[#A8864C]/20">
+      
+      <!-- Habits Header & Counter -->
+      <div class="flex items-center justify-between">
+        <span class="text-xs uppercase font-display tracking-wider text-[#C9A36A] font-semibold">
+          Hábitos Diarios
+        </span>
+        <span id="habits-counter" class="text-xs text-[#E8D9B0]/80 italic">
+          0 / 0 completados
+        </span>
+      </div>
+
+      <!-- Dynamic Habits List -->
+      <div id="habits-list" class="space-y-2">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Add New Habit Input -->
+      <form onsubmit="handleAddHabit(event)" class="pt-2 flex items-center gap-2">
+        <input type="text" 
+               id="new-habit-input" 
+               placeholder="Añadir nuevo hábito o rutina..." 
+               class="flex-grow bg-[#15131C]/80 border border-[#A8864C]/35 hover:border-[#C9A36A]/60 focus:border-[#C9A36A] rounded px-3 py-1.5 text-xs sm:text-sm text-[#E8D9B0] placeholder-[#E8D9B0]/30 focus:outline-none transition-colors">
+        <button type="submit" 
+                class="font-display text-xs uppercase tracking-wider px-3 py-1.5 rounded bg-[#2C5242] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] border border-[#C9A36A]/40 font-semibold transition-colors flex items-center gap-1 flex-shrink-0">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>Añadir</span>
+        </button>
+      </form>
+
+    </div>
+
+  </div>
+
+  <!-- Subtle Notification Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-[#4A1F2B] border border-[#C9A36A] text-[#E8D9B0] px-3.5 py-2 rounded-lg text-xs font-display tracking-wide shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2">
+    <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span id="toast-text">Notificación</span>
+  </div>
+
+  <script>
+    // Storage Keys
+    const KEY_GOAL = 'notion_daily_goal_v5';
+    const KEY_GOAL_COMPLETED = 'notion_goal_done_v5';
+    const KEY_HABITS = 'notion_habits_v5';
+
+    // State Variables
+    let dailyGoal = localStorage.getItem(KEY_GOAL) || '';
+    let goalCompleted = localStorage.getItem(KEY_GOAL_COMPLETED) === 'true';
+    let isEditingGoal = !dailyGoal; // If no goal is set, show input form directly
+
+    // Default Habits list
+    const defaultHabits = [
+      { id: 'h1', text: "Lectura formativa y notas (30m)", done: false },
+      { id: 'h2', text: "Revisión de prioridades y calendario", done: true },
+      { id: 'h3', text: "Bloque de trabajo profundo matutino", done: false },
+      { id: 'h4', text: "Cierre del día y desconexión", done: false }
+    ];
+
+    let habits = [];
+    try {
+      const stored = localStorage.getItem(KEY_HABITS);
+      habits = stored ? JSON.parse(stored) : defaultHabits;
+    } catch (e) {
+      habits = defaultHabits;
+    }
+
+    let editingHabitId = null;
+
+    /* --------------------------------------------------------------------------
+       HELPER: Escape HTML strings to avoid layout breaking
+       -------------------------------------------------------------------------- */
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /* --------------------------------------------------------------------------
+       DAILY GOAL LOGIC: Form Mode vs Established Card Mode
+       -------------------------------------------------------------------------- */
+    function renderGoal() {
+      const container = document.getElementById('goal-container');
+      const statusBadge = document.getElementById('goal-status-badge');
+      if (!container) return;
+
+      if (!dailyGoal || isEditingGoal) {
+        // Mode A: Writing the Goal (Input + "Establecer" button)
+        statusBadge.textContent = 'En redacción';
+        container.innerHTML = `
+          <form onsubmit="handleSaveGoal(event)" class="flex items-center gap-2">
+            <input type="text" 
+                   id="goal-input" 
+                   value="${escapeHtml(dailyGoal)}" 
+                   placeholder="Ej: Finalizar el informe del proyecto..." 
+                   class="flex-grow bg-[#15131C]/90 border border-[#A8864C]/45 hover:border-[#C9A36A] focus:border-[#C9A36A] rounded px-3 py-2 text-xs sm:text-sm text-[#E8D9B0] placeholder-[#E8D9B0]/30 focus:outline-none transition-colors">
+            
+            <button type="submit" 
+                    class="font-display text-xs uppercase tracking-wider px-3.5 py-2 rounded bg-[#6B2F41] hover:bg-[#A8864C] hover:text-[#15131C] text-[#E8D9B0] border border-[#C9A36A]/50 font-semibold transition-colors flex items-center gap-1.5 flex-shrink-0">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span>Establecer</span>
+            </button>
+            ${dailyGoal ? `
+              <button type="button" onclick="cancelEditGoal()" 
+                      class="text-xs text-[#A8864C] hover:text-[#E8D9B0] px-1 py-1 italic transition-colors" title="Cancelar">
+                Cancelar
+              </button>
+            ` : ''}
+          </form>
+        `;
+
+        setTimeout(() => {
+          const inp = document.getElementById('goal-input');
+          if (inp) inp.focus();
+        }, 30);
+
+      } else {
+        // Mode B: Goal Established (Locked plaque with action buttons)
+        statusBadge.textContent = goalCompleted ? 'Cumplido' : 'Foco activo';
+        container.innerHTML = `
+          <div class="flex items-center justify-between p-3 rounded-lg border ${
+            goalCompleted ? 'border-[#2C5242] bg-[#1C342B]/30' : 'border-[#A8864C]/35 bg-[#15131C]/80'
+          } transition-all">
+            
+            <div class="flex items-center gap-2.5 flex-grow mr-2 overflow-hidden">
+              <button onclick="toggleGoalCompleted()" 
+                      class="w-5 h-5 rounded flex items-center justify-center border transition-all flex-shrink-0 ${
+                        goalCompleted 
+                          ? 'bg-[#2C5242] border-[#C9A36A] text-[#E8D9B0]' 
+                          : 'bg-[#15131C] border-[#A8864C]/50 text-transparent hover:border-[#C9A36A]'
+                      }"
+                      title="${goalCompleted ? 'Marcar como pendiente' : 'Marcar objetivo como cumplido'}">
+                <svg class="w-3.5 h-3.5 ${goalCompleted ? 'stroke-current' : 'opacity-0'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </button>
+              
+              <span class="font-serif italic text-sm sm:text-base truncate ${
+                goalCompleted ? 'line-through text-[#C9A36A]/60' : 'text-[#E8D9B0] font-medium'
+              }">
+                "${escapeHtml(dailyGoal)}"
+              </span>
+            </div>
+
+            <!-- Action buttons: Edit & Clear -->
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <button onclick="startEditGoal()" 
+                      class="p-1.5 text-[#C9A36A] hover:text-[#E8D9B0] rounded hover:bg-[#15131C] transition-colors" 
+                      title="Editar objetivo">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M12 20h9"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+              </button>
+              
+              <button onclick="clearGoal()" 
+                      class="p-1.5 text-[#6B2F41] hover:text-[#C9A36A] rounded hover:bg-[#15131C] transition-colors" 
+                      title="Borrar objetivo">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+
+          </div>
+        `;
+      }
+    }
+
+    function handleSaveGoal(e) {
+      e.preventDefault();
+      const input = document.getElementById('goal-input');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+
+      dailyGoal = val;
+      isEditingGoal = false;
+      localStorage.setItem(KEY_GOAL, dailyGoal);
+      renderGoal();
+      showToast("Objetivo diario establecido");
+    }
+
+    function startEditGoal() {
+      isEditingGoal = true;
+      renderGoal();
+    }
+
+    function cancelEditGoal() {
+      isEditingGoal = false;
+      renderGoal();
+    }
+
+    function toggleGoalCompleted() {
+      goalCompleted = !goalCompleted;
+      localStorage.setItem(KEY_GOAL_COMPLETED, String(goalCompleted));
+      renderGoal();
+      showToast(goalCompleted ? "¡Objetivo cumplido!" : "Objetivo marcado pendiente");
+    }
+
+    function clearGoal() {
+      dailyGoal = '';
+      goalCompleted = false;
+      isEditingGoal = true;
+      localStorage.removeItem(KEY_GOAL);
+      localStorage.removeItem(KEY_GOAL_COMPLETED);
+      renderGoal();
+      showToast("Objetivo eliminado");
+    }
+
+    /* --------------------------------------------------------------------------
+       HABITS LIST LOGIC: Render, Check, Inline Edit, Delete, Add
+       -------------------------------------------------------------------------- */
+    function renderHabits() {
+      const list = document.getElementById('habits-list');
+      const counter = document.getElementById('habits-counter');
+      if (!list) return;
+
+      // Update counter
+      const total = habits.length;
+      const completed = habits.filter(h => h.done).length;
+      if (counter) {
+        counter.textContent = `${completed} de ${total} completados`;
+      }
+
+      if (habits.length === 0) {
+        list.innerHTML = `
+          <div class="p-3 text-center text-xs italic text-[#C9A36A]/60 border border-dashed border-[#A8864C]/30 rounded">
+            No hay hábitos configurados. Escribe uno abajo para comenzar.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = habits.map((habit) => {
+        const isEditingThis = (editingHabitId === habit.id);
+
+        if (isEditingThis) {
+          // Inline Edit Mode for this habit
+          return `
+            <div class="flex items-center gap-2 p-2 bg-[#15131C] border border-[#C9A36A] rounded transition-all">
+              <input type="text" 
+                     id="edit-habit-input-${habit.id}" 
+                     value="${escapeHtml(habit.text)}" 
+                     class="flex-grow bg-transparent text-xs sm:text-sm text-[#E8D9B0] focus:outline-none"
+                     onkeydown="handleHabitEditKey(event, '${habit.id}')">
+              <button onclick="saveEditHabit('${habit.id}')" 
+                      class="px-2 py-1 rounded bg-[#6B2F41] text-[#E8D9B0] text-[10px] uppercase font-display border border-[#C9A36A]/40 hover:bg-[#A8864C] hover:text-[#15131C] transition-colors">
+                Guardar
+              </button>
+              <button onclick="cancelEditHabit()" 
+                      class="px-2 py-1 text-[10px] text-[#A8864C] hover:text-[#E8D9B0] italic transition-colors">
+                Cancelar
+              </button>
+            </div>
+          `;
+        }
+
+        // Standard Habit Item View
+        return `
+          <div class="group flex items-center justify-between p-2.5 rounded bg-[#15131C]/60 hover:bg-[#15131C]/90 border border-[#A8864C]/25 hover:border-[#A8864C]/50 transition-all">
+            
+            <label class="flex items-center gap-2.5 flex-grow cursor-pointer select-none overflow-hidden mr-2">
+              <input type="checkbox" 
+                     ${habit.done ? 'checked' : ''} 
+                     onchange="toggleHabit('${habit.id}')" 
+                     class="w-4 h-4 accent-[#6B2F41] rounded cursor-pointer flex-shrink-0">
+              <span class="text-xs sm:text-sm truncate transition-colors ${
+                habit.done ? 'line-through text-[#C9A36A]/50 italic' : 'text-[#E8D9B0]'
+              }">
+                ${escapeHtml(habit.text)}
+              </span>
+            </label>
+
+            <!-- Habit Actions: Edit & Delete -->
+            <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity flex-shrink-0">
+              <button onclick="startEditHabit('${habit.id}')" 
+                      class="p-1 text-[#A8864C] hover:text-[#E8D9B0] rounded transition-colors" 
+                      title="Editar texto del hábito">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M12 20h9"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+              </button>
+
+              <button onclick="deleteHabit('${habit.id}')" 
+                      class="p-1 text-[#6B2F41] hover:text-[#C9A36A] rounded transition-colors" 
+                      title="Eliminar hábito">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function saveHabits() {
+      localStorage.setItem(KEY_HABITS, JSON.stringify(habits));
+    }
+
+    function toggleHabit(id) {
+      const item = habits.find(h => h.id === id);
+      if (!item) return;
+      item.done = !item.done;
+      saveHabits();
+      renderHabits();
+    }
+
+    function handleAddHabit(e) {
+      e.preventDefault();
+      const input = document.getElementById('new-habit-input');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+
+      habits.push({
+        id: 'h_' + Date.now(),
+        text: val,
+        done: false
+      });
+      saveHabits();
+      input.value = '';
+      renderHabits();
+      showToast("Hábito añadido");
+    }
+
+    function deleteHabit(id) {
+      habits = habits.filter(h => h.id !== id);
+      if (editingHabitId === id) editingHabitId = null;
+      saveHabits();
+      renderHabits();
+      showToast("Hábito eliminado");
+    }
+
+    function startEditHabit(id) {
+      editingHabitId = id;
+      renderHabits();
+      setTimeout(() => {
+        const inp = document.getElementById(`edit-habit-input-${id}`);
+        if (inp) inp.focus();
+      }, 30);
+    }
+
+    function saveEditHabit(id) {
+      const inp = document.getElementById(`edit-habit-input-${id}`);
+      if (!inp) return;
+      const val = inp.value.trim();
+      if (!val) return;
+
+      const item = habits.find(h => h.id === id);
+      if (item) {
+        item.text = val;
+        saveHabits();
+      }
+      editingHabitId = null;
+      renderHabits();
+      showToast("Hábito actualizado");
+    }
+
+    function cancelEditHabit() {
+      editingHabitId = null;
+      renderHabits();
+    }
+
+    function handleHabitEditKey(e, id) {
+      if (e.key === 'Enter') {
+        saveEditHabit(id);
+      } else if (e.key === 'Escape') {
+        cancelEditHabit();
+      }
+    }
+
+    function resetDayCheckmarks() {
+      habits.forEach(h => h.done = false);
+      goalCompleted = false;
+      localStorage.setItem(KEY_GOAL_COMPLETED, 'false');
+      saveHabits();
+      renderGoal();
+      renderHabits();
+      showToast("Marcas reiniciadas para hoy");
+    }
+
+    /* Toast Notification Helper */
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      if (!toast || !text) return;
+
+      text.textContent = msg;
+      toast.style.opacity = '1';
+      toast.style.pointerEvents = 'auto';
+
+      clearTimeout(window._toastTimeout);
+      window._toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+      }, 2200);
+    }
+
+    /* Initialize Widget */
+    window.addEventListener('DOMContentLoaded', () => {
+      renderGoal();
+      renderHabits();
+    });
+  </script>
+</body>
+</html>
