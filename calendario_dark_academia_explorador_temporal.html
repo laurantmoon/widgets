@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario Arcana • Explorador Temporal</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Cinzel & Cormorant Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'beige-sombrio': '#E8D9B0',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'purpura-marron': '#6B2F41',
+            'marron-violeta': '#4A1F2B',
+            'azul-verde': '#2C5242',
+            'carbon-sombrio': '#1C342B',
+            'notion-dark': '#191919'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #191919;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #191919;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4A1F2B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A8864C;
+    }
+
+    .grimoire-card {
+      background: linear-gradient(145deg, #1C342B 0%, #17241E 55%, #15131C 100%);
+      border: 1px solid rgba(201, 163, 106, 0.32);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.75), 0 0 20px rgba(74, 31, 43, 0.25);
+    }
+
+    .num-tabular {
+      font-variant-numeric: tabular-nums;
+      font-family: 'Cinzel', serif;
+    }
+
+    .glass-input {
+      background: rgba(21, 19, 28, 0.85);
+      border: 1px solid rgba(168, 134, 76, 0.4);
+      color: #E8D9B0;
+      transition: all 0.2s ease;
+    }
+    .glass-input:focus {
+      outline: none;
+      border-color: #C9A36A;
+      box-shadow: 0 0 8px rgba(201, 163, 106, 0.25);
+    }
+
+    .calendar-day-btn {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .calendar-day-btn:hover:not(.empty-day) {
+      background: rgba(201, 163, 106, 0.15);
+      border-color: #C9A36A;
+      transform: translateY(-1px);
+    }
+
+    .calendar-day-btn.is-selected {
+      background: #6B2F41 !important;
+      border-color: #C9A36A !important;
+      color: #E8D9B0 !important;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(201, 163, 106, 0.4);
+    }
+
+    .calendar-day-btn.is-today {
+      border: 1.5px solid #C9A36A;
+      color: #C9A36A;
+      position: relative;
+    }
+    .calendar-day-btn.is-today::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 4px;
+      height: 4px;
+      background: #C9A36A;
+      border-radius: 50%;
+      box-shadow: 0 0 4px #C9A36A;
+    }
+  </style>
+</head>
+
+<body class="p-3 sm:p-5 lg:p-6 min-h-screen flex flex-col justify-start">
+
+  <div class="max-w-4xl w-full mx-auto space-y-4">
+
+    <!-- Tarjeta Principal del Calendario -->
+    <div class="grimoire-card rounded-xl p-4 sm:p-6 relative overflow-hidden">
+      
+      <!-- Cabecera Superior del Calendario: Título y Navegación de Época -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[#A8864C]/25">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-lg bg-[#15131C] border border-[#C9A36A]/45 text-[#C9A36A] shadow-inner">
+            <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[9px] font-display uppercase tracking-widest text-[#C9A36A] px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/35">
+                Códice del Tiempo
+              </span>
+              <span class="text-[11px] font-serif italic text-[#C9A36A]/80 hidden md:inline">
+                Explorador de fechas pasadas y futuras
+              </span>
+            </div>
+            <h1 class="font-display text-lg sm:text-xl uppercase tracking-wider font-bold text-[#E8D9B0] mt-0.5">
+              Calendario Sagrado
+            </h1>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 self-end sm:self-auto flex-wrap">
+          <!-- Año anterior rápido -->
+          <button onclick="changeYear(-1)" 
+                  class="px-2 py-1.5 rounded-lg bg-[#15131C] hover:bg-[#2C5242] border border-[#A8864C]/40 text-[#C9A36A] hover:text-[#E8D9B0] text-xs font-display transition shadow cursor-pointer" 
+                  title="Año anterior">
+            «
+          </button>
+          
+          <!-- Mes anterior -->
+          <button onclick="changeMonth(-1)" 
+                  class="px-2.5 py-1.5 rounded-lg bg-[#15131C] hover:bg-[#2C5242] border border-[#A8864C]/40 text-[#C9A36A] hover:text-[#E8D9B0] text-xs font-display transition shadow cursor-pointer" 
+                  title="Mes anterior">
+            ‹
+          </button>
+
+          <!-- Botón HOY -->
+          <button onclick="goToToday()" 
+                  class="px-3 py-1.5 rounded-lg bg-[#4A1F2B] hover:bg-[#6B2F41] border border-[#C9A36A]/50 text-[#E8D9B0] text-[10px] font-display uppercase tracking-wider font-semibold transition shadow cursor-pointer">
+            Hoy
+          </button>
+
+          <!-- Mes siguiente -->
+          <button onclick="changeMonth(1)" 
+                  class="px-2.5 py-1.5 rounded-lg bg-[#15131C] hover:bg-[#2C5242] border border-[#A8864C]/40 text-[#C9A36A] hover:text-[#E8D9B0] text-xs font-display transition shadow cursor-pointer" 
+                  title="Mes siguiente">
+            ›
+          </button>
+
+          <!-- Año siguiente rápido -->
+          <button onclick="changeYear(1)" 
+                  class="px-2 py-1.5 rounded-lg bg-[#15131C] hover:bg-[#2C5242] border border-[#A8864C]/40 text-[#C9A36A] hover:text-[#E8D9B0] text-xs font-display transition shadow cursor-pointer" 
+                  title="Año siguiente">
+            »
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between py-3 gap-2 flex-wrap">
+        <div class="flex items-center gap-2">
+          <!-- Selector de Mes desplegable -->
+          <select id="month-select" onchange="onMonthSelectChange(this.value)" 
+                  class="glass-input rounded-lg px-2.5 py-1.5 text-xs font-display uppercase tracking-wider text-[#E8D9B0] cursor-pointer">
+            <option value="0">Enero</option>
+            <option value="1">Febrero</option>
+            <option value="2">Marzo</option>
+            <option value="3">Abril</option>
+            <option value="4">Mayo</option>
+            <option value="5">Junio</option>
+            <option value="6">Julio</option>
+            <option value="7">Agosto</option>
+            <option value="8">Septiembre</option>
+            <option value="9">Octubre</option>
+            <option value="10">Noviembre</option>
+            <option value="11">Diciembre</option>
+          </select>
+
+          <!-- Selector de Año numérico -->
+          <input type="number" id="year-input" onchange="onYearInputChange(this.value)"
+                 class="glass-input rounded-lg px-2 py-1.5 text-xs font-display text-center w-20 text-[#E8D9B0] num-tabular"
+                 min="1" max="9999">
+        </div>
+
+        <div class="flex items-center gap-2 text-xs font-serif italic text-[#C9A36A]">
+          <span id="header-period-indicator">Septiembre 2026</span>
+        </div>
+      </div>
+
+      <div class="mt-2">
+        <!-- Días de la semana (Lunes a Domingo) -->
+        <div class="grid grid-cols-7 gap-1 sm:gap-2 text-center mb-1.5">
+          <span class="text-[10px] sm:text-[11px] font-display uppercase tracking-wider text-[#C9A36A]/80 py-1 font-semibold">Lun</span>
+          <span class="text-[10px] sm:text-[11px] font-display uppercase tracking-wider text-[#C9A36A]/80 py-1 font-semibold">Mar</span>
+          <span class="text-[10px] sm:text-[11px] font-display uppercase tracking-wider text-[#C9A36A]/80 py-1 font-semibold">Mié</span>
+          <span class="text-[10px] sm:text-[11px] font-display uppercase tracking-wider text-[#C9A36A]/80 py-1 font-semibold">Jue</span>
+          <span class="text-[10px] sm:text-[11px] font-display uppercase tracking-wider text-[#C9A36A]/80 py-1 font-semibold">Vie</span>
+          <span class="text-[10px] sm:text-[11px] font-display uppercase tracking-wider text-[#A8864C] py-1 font-semibold">Sáb</span>
+          <span class="text-[10px] sm:text-[11px] font-display uppercase tracking-wider text-[#A8864C] py-1 font-semibold">Dom</span>
+        </div>
+
+        <!-- Contenedor dinámico de casillas de días -->
+        <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 sm:gap-2">
+          <!-- Rellenado por JavaScript -->
+        </div>
+      </div>
+
+      <div class="mt-5 pt-4 border-t border-[#A8864C]/25 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+        
+        <!-- Tarjeta 1: Fecha Completa Seleccionada -->
+        <div class="bg-[#15131C]/90 rounded-lg p-2.5 sm:p-3 border border-[#A8864C]/30 flex flex-col justify-center">
+          <span class="text-[8px] sm:text-[9px] font-display uppercase tracking-widest text-[#C9A36A]">Fecha Observada</span>
+          <span id="detail-full-date" class="font-display text-xs sm:text-sm text-[#E8D9B0] font-semibold mt-0.5 truncate">
+            Cargando...
+          </span>
+          <span id="detail-relative-days" class="text-[10px] font-serif italic text-[#C9A36A]/80 mt-0.5">
+            Hoy
+          </span>
+        </div>
+
+        <!-- Tarjeta 2: Fase Lunar Calculada -->
+        <div class="bg-[#15131C]/90 rounded-lg p-2.5 sm:p-3 border border-[#A8864C]/30 flex items-center justify-between">
+          <div>
+            <span class="text-[8px] sm:text-[9px] font-display uppercase tracking-widest text-[#C9A36A]">Fase Lunar</span>
+            <span id="detail-moon-name" class="font-display text-xs text-[#E8D9B0] block font-semibold mt-0.5">
+              Cálculo...
+            </span>
+            <span id="detail-moon-illum" class="text-[10px] font-serif italic text-[#C9A36A]/80">
+              0%
+            </span>
+          </div>
+          <div id="detail-moon-icon" class="text-[#C9A36A] p-1.5 bg-[#1C342B]/40 rounded-lg border border-[#A8864C]/20">
+            <!-- Icono SVG -->
+          </div>
+        </div>
+
+        <!-- Tarjeta 3: Signo Zodiacal & Estación -->
+        <div class="bg-[#15131C]/90 rounded-lg p-2.5 sm:p-3 border border-[#A8864C]/30 flex flex-col justify-center">
+          <span class="text-[8px] sm:text-[9px] font-display uppercase tracking-widest text-[#C9A36A]">Zodíaco & Estación</span>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span id="detail-zodiac-symbol" class="text-sm text-[#C9A36A]">♍</span>
+            <span id="detail-zodiac-name" class="font-display text-xs text-[#E8D9B0] font-semibold">Virgo</span>
+          </div>
+          <span id="detail-season-name" class="text-[10px] font-serif italic text-[#C9A36A]/80 mt-0.5">
+            Estación
+          </span>
+        </div>
+
+        <!-- Tarjeta 4: Día y Semana del Año -->
+        <div class="bg-[#15131C]/90 rounded-lg p-2.5 sm:p-3 border border-[#A8864C]/30 flex flex-col justify-center">
+          <span class="text-[8px] sm:text-[9px] font-display uppercase tracking-widest text-[#C9A36A]">Cómputo Anual</span>
+          <span id="detail-day-of-year" class="num-tabular font-display text-xs text-[#E8D9B0] font-semibold mt-0.5">
+            Día 0 de 365
+          </span>
+          <span id="detail-week-of-year" class="text-[10px] font-serif italic text-[#C9A36A]/80 mt-0.5">
+            Semana 0 • ISO
+          </span>
+        </div>
+
+      </div>
+
+      <div class="mt-3 pt-2.5 border-t border-[#A8864C]/20 flex items-center justify-between flex-wrap gap-2 text-[10px] sm:text-[11px] text-[#C9A36A]/90 font-serif">
+        <span class="italic">Saltos rápidos:</span>
+        <div class="flex items-center gap-1 sm:gap-1.5">
+          <button onclick="jumpRelativeYears(-10)" class="px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[9px]">-10 años</button>
+          <button onclick="jumpRelativeYears(-1)" class="px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[9px]">-1 año</button>
+          <button onclick="goToToday()" class="px-1.5 py-0.5 rounded bg-[#1C342B] border border-[#C9A36A]/50 text-[#E8D9B0] transition cursor-pointer font-display text-[9px]">Presente</button>
+          <button onclick="jumpRelativeYears(1)" class="px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[9px]">+1 año</button>
+          <button onclick="jumpRelativeYears(10)" class="px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[9px]">+10 años</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    const MONTH_NAMES = [
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+
+    const WEEKDAY_NAMES = [
+      "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"
+    ];
+
+    // Estado de la fecha que se está visualizando y de la fecha seleccionada
+    const today = new Date();
+    let viewedYear = today.getFullYear();
+    let viewedMonth = today.getMonth(); // 0 - 11
+    let selectedDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    function getMoonPhaseForDate(date) {
+      const refNewMoon = new Date('2000-01-06T18:14:00Z').getTime();
+      const diffDays = (date.getTime() - refNewMoon) / (1000 * 60 * 60 * 24);
+      const synodic = 29.53058867;
+      const moonAge = ((diffDays % synodic) + synodic) % synodic;
+
+      let name = "";
+      let illum = 0;
+      let svg = "";
+
+      if (moonAge < 1.84) {
+        name = "Luna Nueva";
+        illum = 0;
+        svg = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9" stroke-dasharray="2 2"/></svg>`;
+      } else if (moonAge < 7.38) {
+        name = "Creciente";
+        illum = Math.round((moonAge / 14.76) * 100);
+        svg = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3a9 9 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+      } else if (moonAge < 9.22) {
+        name = "Cuarto Creciente";
+        illum = 50;
+        svg = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18V3z" fill="#C9A36A" fill-opacity="0.3"/></svg>`;
+      } else if (moonAge < 14.76) {
+        name = "Gibosa Creciente";
+        illum = Math.round((moonAge / 14.76) * 100);
+        svg = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3c-4.5 0-7 4-7 9s2.5 9 7 9" fill="#C9A36A" fill-opacity="0.25"/></svg>`;
+      } else if (moonAge < 16.61) {
+        name = "Luna Llena";
+        illum = 100;
+        svg = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9" fill="#C9A36A" fill-opacity="0.3"/><circle cx="12" cy="12" r="9"/></svg>`;
+      } else if (moonAge < 22.15) {
+        name = "Gibosa Menguante";
+        illum = Math.round((1 - (moonAge - 14.76) / 14.76) * 100);
+        svg = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3c4.5 0 7 4 7 9s-2.5 9-7 9" fill="#C9A36A" fill-opacity="0.25"/></svg>`;
+      } else if (moonAge < 23.99) {
+        name = "Cuarto Menguante";
+        illum = 50;
+        svg = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18V3z" fill="#C9A36A" fill-opacity="0.3"/></svg>`;
+      } else {
+        name = "Luna Menguante";
+        illum = Math.round((1 - (moonAge - 14.76) / 14.76) * 100);
+        svg = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3a9 9 0 0 1-9 9 9 9 0 1 0 9-9Z"/></svg>`;
+      }
+
+      return { name, illum: Math.min(100, Math.max(0, illum)), svg };
+    }
+
+    function getZodiacAndSeason(day, month) {
+      // month es 0-11
+      const m = month + 1;
+      let sign = "";
+      let symbol = "";
+
+      if ((m === 3 && day >= 21) || (m === 4 && day <= 19)) { sign = "Aries"; symbol = "♈"; }
+      else if ((m === 4 && day >= 20) || (m === 5 && day <= 20)) { sign = "Tauro"; symbol = "♉"; }
+      else if ((m === 5 && day >= 21) || (m === 6 && day <= 20)) { sign = "Géminis"; symbol = "♊"; }
+      else if ((m === 6 && day >= 21) || (m === 7 && day <= 22)) { sign = "Cáncer"; symbol = "♋"; }
+      else if ((m === 7 && day >= 23) || (m === 8 && day <= 22)) { sign = "Leo"; symbol = "♌"; }
+      else if ((m === 8 && day >= 23) || (m === 9 && day <= 22)) { sign = "Virgo"; symbol = "♍"; }
+      else if ((m === 9 && day >= 23) || (m === 10 && day <= 22)) { sign = "Libra"; symbol = "♎"; }
+      else if ((m === 10 && day >= 23) || (m === 11 && day <= 21)) { sign = "Escorpio"; symbol = "♏"; }
+      else if ((m === 11 && day >= 22) || (m === 12 && day <= 21)) { sign = "Sagitario"; symbol = "♐"; }
+      else if ((m === 12 && day >= 22) || (m === 1 && day <= 19)) { sign = "Capricornio"; symbol = "♑"; }
+      else if ((m === 1 && day >= 20) || (m === 2 && day <= 18)) { sign = "Acuario"; symbol = "♒"; }
+      else { sign = "Piscis"; symbol = "♓"; }
+
+      // Estación aproximada en el hemisferio norte
+      let season = "";
+      if ((m === 3 && day >= 20) || m === 4 || m === 5 || (m === 6 && day < 21)) {
+        season = "Primavera";
+      } else if ((m === 6 && day >= 21) || m === 7 || m === 8 || (m === 9 && day < 23)) {
+        season = "Verano";
+      } else if ((m === 9 && day >= 23) || m === 10 || m === 11 || (m === 12 && day < 21)) {
+        season = "Otoño";
+      } else {
+        season = "Invierno";
+      }
+
+      return { sign, symbol, season };
+    }
+
+    function getDayOfYearAndWeek(date) {
+      const start = new Date(date.getFullYear(), 0, 0);
+      const diff = date - start;
+      const oneDay = 1000 * 60 * 60 * 24;
+      const dayOfYear = Math.floor(diff / oneDay);
+
+      const isLeap = (date.getFullYear() % 4 === 0 && date.getFullYear() % 100 !== 0) || (date.getFullYear() % 400 === 0);
+      const totalDays = isLeap ? 366 : 365;
+
+      // Cálculo número de semana ISO
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+
+      return { dayOfYear, totalDays, weekNo };
+    }
+
+    function updateDateInspector(date) {
+      const fullDateEl = document.getElementById('detail-full-date');
+      const relativeDaysEl = document.getElementById('detail-relative-days');
+      const moonNameEl = document.getElementById('detail-moon-name');
+      const moonIllumEl = document.getElementById('detail-moon-illum');
+      const moonIconEl = document.getElementById('detail-moon-icon');
+      const zodiacSymbolEl = document.getElementById('detail-zodiac-symbol');
+      const zodiacNameEl = document.getElementById('detail-zodiac-name');
+      const seasonNameEl = document.getElementById('detail-season-name');
+      const dayOfYearEl = document.getElementById('detail-day-of-year');
+      const weekOfYearEl = document.getElementById('detail-week-of-year');
+
+      // Nombre del día
+      const weekdayName = WEEKDAY_NAMES[date.getDay()];
+      const day = date.getDate();
+      const monthName = MONTH_NAMES[date.getMonth()];
+      const year = date.getFullYear();
+
+      if (fullDateEl) {
+        fullDateEl.textContent = `${weekdayName}, ${day} ${monthName} ${year}`;
+      }
+
+      // Diferencia en días respecto a hoy
+      const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const startOfSelected = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const diffTime = startOfSelected.getTime() - startOfToday.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      if (relativeDaysEl) {
+        if (diffDays === 0) {
+          relativeDaysEl.textContent = "Es la fecha de hoy";
+          relativeDaysEl.className = "text-[10px] font-serif italic text-[#C9A36A] font-semibold";
+        } else if (diffDays > 0) {
+          relativeDaysEl.textContent = diffDays === 1 ? "Mañana (en 1 día)" : `En ${diffDays.toLocaleString('es-ES')} días futuros`;
+          relativeDaysEl.className = "text-[10px] font-serif italic text-[#E8D9B0]";
+        } else {
+          const abs = Math.abs(diffDays);
+          relativeDaysEl.textContent = abs === 1 ? "Ayer (hace 1 día)" : `Ocurrió hace ${abs.toLocaleString('es-ES')} días`;
+          relativeDaysEl.className = "text-[10px] font-serif italic text-[#A8864C]";
+        }
+      }
+
+      // Fases lunares
+      const moon = getMoonPhaseForDate(date);
+      if (moonNameEl) moonNameEl.textContent = moon.name;
+      if (moonIllumEl) moonIllumEl.textContent = `${moon.illum}% iluminación`;
+      if (moonIconEl) moonIconEl.innerHTML = moon.svg;
+
+      // Zodíaco y estación
+      const z = getZodiacAndSeason(day, date.getMonth());
+      if (zodiacSymbolEl) zodiacSymbolEl.textContent = z.symbol;
+      if (zodiacNameEl) zodiacNameEl.textContent = z.sign;
+      if (seasonNameEl) seasonNameEl.textContent = `Época de ${z.season}`;
+
+      // Cómputo del año
+      const comp = getDayOfYearAndWeek(date);
+      if (dayOfYearEl) dayOfYearEl.textContent = `Día ${comp.dayOfYear} de ${comp.totalDays}`;
+      if (weekOfYearEl) weekOfYearEl.textContent = `Semana ${comp.weekNo} del año`;
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calendar-days-grid');
+      const monthSelect = document.getElementById('month-select');
+      const yearInput = document.getElementById('year-input');
+      const periodIndicator = document.getElementById('header-period-indicator');
+
+      if (monthSelect) monthSelect.value = viewedMonth;
+      if (yearInput) yearInput.value = viewedYear;
+      if (periodIndicator) {
+        periodIndicator.textContent = `${MONTH_NAMES[viewedMonth]} de ${viewedYear}`;
+      }
+
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      // Primer día de la semana para este mes (Lunes = 0, Domingo = 6)
+      const firstDay = new Date(viewedYear, viewedMonth, 1);
+      const startDayIndex = (firstDay.getDay() + 6) % 7;
+
+      // Total de días del mes actual
+      const daysInMonth = new Date(viewedYear, viewedMonth + 1, 0).getDate();
+
+      // Días del mes anterior para rellenar el inicio
+      const daysInPrevMonth = new Date(viewedYear, viewedMonth, 0).getDate();
+
+      // Celdas del mes anterior
+      for (let i = startDayIndex - 1; i >= 0; i--) {
+        const prevDayNum = daysInPrevMonth - i;
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'calendar-day-btn empty-day aspect-square rounded-lg flex items-center justify-center text-xs text-[#E8D9B0]/25 font-display select-none p-1 opacity-50 hover:opacity-90 hover:text-[#C9A36A] cursor-pointer';
+        cell.textContent = prevDayNum;
+        cell.onclick = () => {
+          changeMonth(-1);
+          selectDate(new Date(viewedYear, viewedMonth, prevDayNum));
+        };
+        grid.appendChild(cell);
+      }
+
+      for (let dayNum = 1; dayNum <= daysInMonth; dayNum++) {
+        const thisDate = new Date(viewedYear, viewedMonth, dayNum);
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'calendar-day-btn aspect-square rounded-lg flex flex-col items-center justify-center text-xs sm:text-sm font-display text-[#E8D9B0] border border-transparent select-none p-1 cursor-pointer bg-[#15131C]/60';
+        cell.textContent = dayNum;
+
+        // Comprobar si es hoy
+        const isToday = thisDate.getFullYear() === today.getFullYear() &&
+                        thisDate.getMonth() === today.getMonth() &&
+                        thisDate.getDate() === today.getDate();
+        if (isToday) {
+          cell.classList.add('is-today');
+        }
+
+        // Comprobar si es el seleccionado
+        const isSelected = thisDate.getFullYear() === selectedDate.getFullYear() &&
+                           thisDate.getMonth() === selectedDate.getMonth() &&
+                           thisDate.getDate() === selectedDate.getDate();
+        if (isSelected) {
+          cell.classList.add('is-selected');
+        }
+
+        // Resaltado sutil para fines de semana
+        const dayOfWeek = thisDate.getDay();
+        if ((dayOfWeek === 0 || dayOfWeek === 6) && !isSelected) {
+          cell.style.color = '#C9A36A';
+        }
+
+        cell.onclick = () => selectDate(thisDate);
+        grid.appendChild(cell);
+      }
+
+      const totalSlotsFilled = startDayIndex + daysInMonth;
+      const nextRemaining = (7 - (totalSlotsFilled % 7)) % 7;
+
+      for (let j = 1; j <= nextRemaining; j++) {
+        const nextDayNum = j;
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'calendar-day-btn empty-day aspect-square rounded-lg flex items-center justify-center text-xs text-[#E8D9B0]/25 font-display select-none p-1 opacity-50 hover:opacity-90 hover:text-[#C9A36A] cursor-pointer';
+        cell.textContent = nextDayNum;
+        cell.onclick = () => {
+          changeMonth(1);
+          selectDate(new Date(viewedYear, viewedMonth, nextDayNum));
+        };
+        grid.appendChild(cell);
+      }
+
+      // Actualizar el panel oracular con la fecha seleccionada
+      updateDateInspector(selectedDate);
+    }
+
+    function selectDate(date) {
+      selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      renderCalendar();
+    }
+
+    function changeMonth(delta) {
+      viewedMonth += delta;
+      if (viewedMonth > 11) {
+        viewedMonth = 0;
+        viewedYear++;
+      } else if (viewedMonth < 0) {
+        viewedMonth = 11;
+        viewedYear--;
+      }
+      renderCalendar();
+    }
+
+    function changeYear(delta) {
+      viewedYear += delta;
+      renderCalendar();
+    }
+
+    function jumpRelativeYears(years) {
+      viewedYear += years;
+      selectedDate.setFullYear(selectedDate.getFullYear() + years);
+      renderCalendar();
+    }
+
+    function goToToday() {
+      viewedYear = today.getFullYear();
+      viewedMonth = today.getMonth();
+      selectedDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      renderCalendar();
+    }
+
+    function onMonthSelectChange(val) {
+      viewedMonth = parseInt(val, 10);
+      renderCalendar();
+    }
+
+    function onYearInputChange(val) {
+      const y = parseInt(val, 10);
+      if (!isNaN(y) && y > 0 && y < 10000) {
+        viewedYear = y;
+        renderCalendar();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCalendar();
+    });
+  </script>
+</body>
+</html>
