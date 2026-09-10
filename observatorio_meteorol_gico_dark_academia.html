@@ -123,23 +123,33 @@
     .custom-h-scroll::-webkit-scrollbar-thumb:hover {
       background: #C9A36A;
     }
+    /* Presets de tamaño interactivo para Notion */
+    .widget-size-s { max-width: 440px !important; }
+    .widget-size-m { max-width: 620px !important; }
+    .widget-size-l { max-width: 820px !important; }
+
+    .widget-size-s .hide-on-s { display: none !important; }
+    .widget-size-s .compact-text-s { font-size: 10px !important; }
+    .widget-size-s .num-compact-s { font-size: 1.5rem !important; }
+    .widget-size-s .metrics-compact-s { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .widget-size-s .daily-compact-s { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   </style>
 </head>
 
-<body class="p-3 sm:p-5 lg:p-6 min-h-screen flex flex-col justify-start">
+<body class="p-2 sm:p-3 min-h-fit flex flex-col items-center justify-start">
 
-  <div class="max-w-4xl w-full mx-auto space-y-4">
+  <div id="weather-main-wrapper" class="w-full widget-size-m mx-auto space-y-2.5 transition-all duration-300">
 
     <!-- Tarjeta Principal del Observatorio Meteorológico -->
-    <div class="grimoire-card rounded-xl p-4 sm:p-6 relative overflow-hidden">
+    <div class="grimoire-card rounded-xl p-3 sm:p-4 relative overflow-hidden">
       <!-- Lienzo dinámico para partículas atmosféricas (lluvia, bruma, nieve) -->
       <canvas id="weather-particle-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
 
       <!-- Cabecera Superior: Título & Selector de Ubicación / GPS -->
-      <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[#A8864C]/25">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-[#15131C] border border-[#C9A36A]/45 text-[#C9A36A] shadow-inner">
-            <svg class="w-5 h-5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2.5 border-b border-[#A8864C]/25">
+        <div class="flex items-center gap-2">
+          <div class="p-1.5 rounded-lg bg-[#15131C] border border-[#C9A36A]/45 text-[#C9A36A] shadow-inner">
+            <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 2v2"/>
               <path d="m4.93 4.93 1.41 1.41"/>
               <path d="M20 12h2"/>
@@ -149,40 +159,47 @@
             </svg>
           </div>
           <div>
-            <div class="flex items-center gap-2">
-              <span class="text-[9px] font-display uppercase tracking-widest text-[#C9A36A] px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/35">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[8px] font-display uppercase tracking-widest text-[#C9A36A] px-1 py-0.2 rounded bg-[#15131C] border border-[#A8864C]/35">
                 Meteorología
               </span>
-              <span class="text-[11px] font-serif italic text-[#C9A36A]/80 hidden sm:inline">
-                Condiciones actuales y pronóstico
+              <span class="text-[10px] font-serif italic text-[#C9A36A]/80 hide-on-s hidden md:inline">
+                Condiciones y pronóstico
               </span>
             </div>
-            <h1 class="font-display text-lg sm:text-xl uppercase tracking-wider font-bold text-[#E8D9B0] mt-0.5">
+            <h1 class="font-display text-base sm:text-lg uppercase tracking-wider font-bold text-[#E8D9B0] mt-0.5">
               El Tiempo
             </h1>
           </div>
         </div>
 
-        <!-- Controles de Ubicación: GPS y Buscador Manual -->
-        <div class="flex items-center gap-2 w-full sm:w-auto relative">
+        <!-- Controles: Selector de tamaño interactivo, GPS y Buscador Manual -->
+        <div class="flex items-center gap-1.5 w-full sm:w-auto relative flex-wrap sm:flex-nowrap justify-end">
+          <!-- Selector de tamaño del widget [ S | M | L ] -->
+          <div class="flex items-center bg-[#15131C] p-0.5 rounded-lg border border-[#A8864C]/30 text-[9px] font-display mr-1">
+            <button onclick="setWeatherWidgetSize('s')" id="weather-size-btn-s" class="px-1.5 py-0.5 rounded text-[#C9A36A] hover:text-[#E8D9B0] transition cursor-pointer" title="Tamaño Compacto (Ideal columnas estrechas)">S</button>
+            <button onclick="setWeatherWidgetSize('m')" id="weather-size-btn-m" class="px-1.5 py-0.5 rounded bg-[#6B2F41] text-[#E8D9B0] border border-[#C9A36A]/50 font-semibold cursor-pointer" title="Tamaño Mediano">M</button>
+            <button onclick="setWeatherWidgetSize('l')" id="weather-size-btn-l" class="px-1.5 py-0.5 rounded text-[#C9A36A] hover:text-[#E8D9B0] transition cursor-pointer" title="Tamaño Completo">L</button>
+          </div>
+
           <!-- Botón de Geolocalización GPS -->
           <button id="btn-gps-location" onclick="requestGeolocation()" 
-                  class="px-2.5 py-1.5 rounded-lg bg-[#15131C] hover:bg-[#2C5242] border border-[#A8864C]/45 text-[#C9A36A] hover:text-[#E8D9B0] text-xs font-display flex items-center gap-1.5 transition shadow cursor-pointer flex-shrink-0"
+                  class="px-2 py-1 rounded-lg bg-[#15131C] hover:bg-[#2C5242] border border-[#A8864C]/45 text-[#C9A36A] hover:text-[#E8D9B0] text-xs font-display flex items-center gap-1 transition shadow cursor-pointer flex-shrink-0"
                   title="Detectar mi ubicación actual con GPS">
-            <svg id="gps-icon" class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <svg id="gps-icon" class="w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <polygon points="3 11 22 2 13 21 11 13 3 11"/>
             </svg>
-            <span class="text-[10px] uppercase tracking-wider font-semibold">Mi Ubicación</span>
+            <span class="text-[9px] uppercase tracking-wider font-semibold hide-on-s">GPS</span>
           </button>
 
           <!-- Input de Búsqueda de Ciudad -->
-          <div class="relative flex-grow sm:w-48">
-            <input type="text" id="city-search-input" placeholder="Buscar ciudad o municipio..." 
+          <div class="relative flex-grow sm:w-40">
+            <input type="text" id="city-search-input" placeholder="Buscar ciudad..." 
                    oninput="onCitySearchInput(this.value)"
                    autocomplete="off"
-                   class="glass-input rounded-lg px-2.5 py-1.5 text-xs font-serif text-[#E8D9B0] placeholder-[#C9A36A]/40 w-full">
-            <div id="search-spinner" class="hidden absolute right-2.5 top-2">
-              <svg class="animate-spin w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none">
+                   class="glass-input rounded-lg px-2 py-1 text-[11px] font-serif text-[#E8D9B0] placeholder-[#C9A36A]/40 w-full">
+            <div id="search-spinner" class="hidden absolute right-2 top-1.5">
+              <svg class="animate-spin w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
@@ -190,7 +207,7 @@
 
             <!-- Desplegable de Resultados de Búsqueda -->
             <div id="city-results-dropdown" 
-                 class="hidden absolute left-0 right-0 top-full mt-1 bg-[#15131C] border border-[#C9A36A]/50 rounded-lg shadow-2xl z-50 max-h-48 overflow-y-auto">
+                 class="hidden absolute left-0 right-0 top-full mt-1 bg-[#15131C] border border-[#C9A36A]/50 rounded-lg shadow-2xl z-50 max-h-44 overflow-y-auto">
               <!-- Rellenado dinámico -->
             </div>
           </div>
@@ -198,12 +215,12 @@
       </div>
 
       <!-- Vista Principal: Estado Meteorológico Actual (Versión Compacta) -->
-      <div class="relative z-10 py-3 sm:py-3.5 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 border-b border-[#A8864C]/25">
+      <div class="relative z-10 py-2.5 flex flex-col md:flex-row items-center justify-between gap-2.5 border-b border-[#A8864C]/25">
         
         <!-- Izquierda: Estado, Icono y Temperatura -->
-        <div class="flex items-center gap-3.5 sm:gap-4 w-full md:w-auto">
-          <!-- Icono Central del Tiempo (dimensiones más compactas) -->
-          <div id="weather-main-icon-box" class="w-11 h-11 sm:w-13 sm:h-13 p-2 sm:p-2.5 rounded-xl bg-[#15131C]/90 border border-[#C9A36A]/50 shadow-lg flex items-center justify-center flex-shrink-0 text-[#C9A36A]">
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <!-- Icono Central del Tiempo -->
+          <div id="weather-main-icon-box" class="w-10 h-10 sm:w-11 sm:h-11 p-2 rounded-xl bg-[#15131C]/90 border border-[#C9A36A]/50 shadow-lg flex items-center justify-center flex-shrink-0 text-[#C9A36A]">
             <!-- SVG dinámico -->
             <svg class="w-full h-full text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="5"/>
@@ -221,105 +238,105 @@
           <!-- Temperatura y Estado -->
           <div class="space-y-0.5">
             <div class="flex items-center gap-1.5 flex-wrap">
-              <span id="weather-location-name" class="font-display text-sm sm:text-base font-bold text-[#E8D9B0] uppercase tracking-wider">
+              <span id="weather-location-name" class="font-display text-xs sm:text-sm font-bold text-[#E8D9B0] uppercase tracking-wider truncate max-w-[170px]">
                 Localizando...
               </span>
-              <span id="weather-country-code" class="text-[9px] font-mono px-1 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A]">
+              <span id="weather-country-code" class="text-[8px] font-mono px-1 py-0.2 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A]">
                 ES
               </span>
             </div>
 
-            <div class="flex items-baseline gap-2.5">
-              <span id="weather-temp-value" class="num-tabular text-3xl sm:text-4xl font-bold tracking-tight text-[#E8D9B0]">
+            <div class="flex items-baseline gap-2">
+              <span id="weather-temp-value" class="num-tabular num-compact-s text-2xl sm:text-3xl font-bold tracking-tight text-[#E8D9B0]">
                 --°
               </span>
-              <span id="weather-apparent-temp" class="text-[11px] sm:text-xs font-serif italic text-[#C9A36A]">
+              <span id="weather-apparent-temp" class="text-[10px] sm:text-[11px] font-serif italic text-[#C9A36A]">
                 Sensación: --°
               </span>
             </div>
 
             <div class="flex items-center gap-1.5 pt-0.5">
-              <span id="weather-condition-badge" class="text-[11px] font-display uppercase tracking-wider text-[#C9A36A] font-semibold">
+              <span id="weather-condition-badge" class="text-[10px] font-display uppercase tracking-wider text-[#C9A36A] font-semibold">
                 Actualizando...
               </span>
               <span class="text-[#A8864C]/40 text-xs">•</span>
-              <span id="weather-daynight-tag" class="text-[10px] font-serif italic text-[#E8D9B0]/75">
+              <span id="weather-daynight-tag" class="text-[9px] font-serif italic text-[#E8D9B0]/75">
                 Día
               </span>
             </div>
           </div>
         </div>
 
-        <!-- Derecha: Resumen Meteorológico Diario (Caja más reducida) -->
-        <div class="w-full md:max-w-[220px] lg:max-w-[240px] p-2.5 rounded-lg bg-[#15131C]/80 border border-[#A8864C]/30 flex flex-col justify-center flex-shrink-0">
-          <div class="flex items-center gap-1 text-[8px] sm:text-[9px] font-display uppercase tracking-widest text-[#C9A36A]">
-            <svg class="w-2.5 h-2.5 text-[#C9A36A] candle-flame" viewBox="0 0 24 24" fill="currentColor">
+        <!-- Derecha: Resumen Meteorológico Diario (Caja reducida y compacta) -->
+        <div class="w-full md:max-w-[210px] p-2 rounded-lg bg-[#15131C]/80 border border-[#A8864C]/30 flex flex-col justify-center flex-shrink-0">
+          <div class="flex items-center gap-1 text-[8px] font-display uppercase tracking-widest text-[#C9A36A]">
+            <svg class="w-2 h-2 text-[#C9A36A] candle-flame" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2c-1.5 2-2 3.5-2 5a2 2 0 0 0 4 0c0-1.5-.5-3-2-5z"/>
             </svg>
-            <span>Resumen del Día</span>
+            <span>Resumen</span>
           </div>
-          <p id="weather-arcane-quote" class="font-serif italic text-[11px] sm:text-xs text-[#E8D9B0] mt-1 leading-snug line-clamp-2">
-            Obteniendo datos meteorológicos...
+          <p id="weather-arcane-quote" class="font-serif italic text-[10px] sm:text-[11px] text-[#E8D9B0] mt-0.5 leading-snug line-clamp-2">
+            Obteniendo datos...
           </p>
-          <span id="weather-updated-time" class="text-[8px] font-mono text-[#C9A36A]/60 mt-1 text-right">
-            Actualizado: --:--
+          <span id="weather-updated-time" class="text-[8px] font-mono text-[#C9A36A]/60 mt-0.5 text-right">
+            --:--
           </span>
         </div>
 
       </div>
 
       <!-- Métricas Clave (Humedad, Viento, Presión, Índice UV & Ocaso) -->
-      <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 py-4 border-b border-[#A8864C]/25">
+      <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 metrics-compact-s gap-2 py-2.5 border-b border-[#A8864C]/25">
         
         <!-- Métrica 1: Humedad Relativa -->
-        <div class="bg-[#15131C]/90 rounded-lg p-2.5 sm:p-3 border border-[#A8864C]/30 flex items-center justify-between">
+        <div class="bg-[#15131C]/90 rounded-lg p-2 border border-[#A8864C]/30 flex items-center justify-between">
           <div>
-            <span class="text-[8px] sm:text-[9px] font-display uppercase tracking-widest text-[#C9A36A]">Humedad</span>
-            <span id="metric-humidity" class="num-tabular font-display text-sm sm:text-base text-[#E8D9B0] font-semibold block mt-0.5">
+            <span class="text-[8px] font-display uppercase tracking-widest text-[#C9A36A]">Humedad</span>
+            <span id="metric-humidity" class="num-tabular font-display text-xs sm:text-sm text-[#E8D9B0] font-semibold block mt-0.5">
               --%
             </span>
-            <span id="metric-cloud-cover" class="text-[10px] font-serif italic text-[#C9A36A]/80">
-              Nubosidad: --%
+            <span id="metric-cloud-cover" class="text-[9px] font-serif italic text-[#C9A36A]/80">
+              Nubes: --%
             </span>
           </div>
-          <div class="text-[#C9A36A] p-1.5 bg-[#1C342B]/40 rounded-lg border border-[#A8864C]/20">
-            <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <div class="text-[#C9A36A] p-1 bg-[#1C342B]/40 rounded-lg border border-[#A8864C]/20">
+            <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
             </svg>
           </div>
         </div>
 
         <!-- Métrica 2: Viento y Dirección -->
-        <div class="bg-[#15131C]/90 rounded-lg p-2.5 sm:p-3 border border-[#A8864C]/30 flex items-center justify-between">
+        <div class="bg-[#15131C]/90 rounded-lg p-2 border border-[#A8864C]/30 flex items-center justify-between">
           <div>
-            <span class="text-[8px] sm:text-[9px] font-display uppercase tracking-widest text-[#C9A36A]">Viento</span>
-            <span id="metric-wind-speed" class="num-tabular font-display text-sm sm:text-base text-[#E8D9B0] font-semibold block mt-0.5">
+            <span class="text-[8px] font-display uppercase tracking-widest text-[#C9A36A]">Viento</span>
+            <span id="metric-wind-speed" class="num-tabular font-display text-xs sm:text-sm text-[#E8D9B0] font-semibold block mt-0.5">
               -- km/h
             </span>
-            <span id="metric-wind-dir" class="text-[10px] font-serif italic text-[#C9A36A]/80">
-              Dirección: --
+            <span id="metric-wind-dir" class="text-[9px] font-serif italic text-[#C9A36A]/80 truncate max-w-[85px] block">
+              --
             </span>
           </div>
-          <div class="text-[#C9A36A] p-1.5 bg-[#1C342B]/40 rounded-lg border border-[#A8864C]/20">
-            <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <div class="text-[#C9A36A] p-1 bg-[#1C342B]/40 rounded-lg border border-[#A8864C]/20">
+            <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
             </svg>
           </div>
         </div>
 
         <!-- Métrica 3: Presión Barométrica -->
-        <div class="bg-[#15131C]/90 rounded-lg p-2.5 sm:p-3 border border-[#A8864C]/30 flex items-center justify-between">
+        <div class="bg-[#15131C]/90 rounded-lg p-2 border border-[#A8864C]/30 flex items-center justify-between">
           <div>
-            <span class="text-[8px] sm:text-[9px] font-display uppercase tracking-widest text-[#C9A36A]">Presión</span>
-            <span id="metric-pressure" class="num-tabular font-display text-sm sm:text-base text-[#E8D9B0] font-semibold block mt-0.5">
+            <span class="text-[8px] font-display uppercase tracking-widest text-[#C9A36A]">Presión</span>
+            <span id="metric-pressure" class="num-tabular font-display text-xs sm:text-sm text-[#E8D9B0] font-semibold block mt-0.5">
               ---- hPa
             </span>
-            <span id="metric-pressure-tendency" class="text-[10px] font-serif italic text-[#C9A36A]/80">
-              Presión estable
+            <span id="metric-pressure-tendency" class="text-[9px] font-serif italic text-[#C9A36A]/80 truncate max-w-[85px] block">
+              Estable
             </span>
           </div>
-          <div class="text-[#C9A36A] p-1.5 bg-[#1C342B]/40 rounded-lg border border-[#A8864C]/20">
-            <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <div class="text-[#C9A36A] p-1 bg-[#1C342B]/40 rounded-lg border border-[#A8864C]/20">
+            <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <circle cx="12" cy="12" r="10"/>
               <path d="m16 12-4-4v8"/>
             </svg>
@@ -327,23 +344,21 @@
         </div>
 
         <!-- Métrica 4: Índice UV & Puesta de Sol -->
-        <div class="bg-[#15131C]/90 rounded-lg p-2.5 sm:p-3 border border-[#A8864C]/30 flex items-center justify-between">
+        <div class="bg-[#15131C]/90 rounded-lg p-2 border border-[#A8864C]/30 flex items-center justify-between">
           <div>
-            <span class="text-[8px] sm:text-[9px] font-display uppercase tracking-widest text-[#C9A36A]">Índice UV</span>
-            <span id="metric-uv-index" class="num-tabular font-display text-sm sm:text-base text-[#E8D9B0] font-semibold block mt-0.5">
+            <span class="text-[8px] font-display uppercase tracking-widest text-[#C9A36A]">Índice UV</span>
+            <span id="metric-uv-index" class="num-tabular font-display text-xs sm:text-sm text-[#E8D9B0] font-semibold block mt-0.5">
               UV: --
             </span>
-            <span id="metric-sunset-time" class="text-[10px] font-serif italic text-[#C9A36A]/80">
-              Puesta de sol: --:--
+            <span id="metric-sunset-time" class="text-[9px] font-serif italic text-[#C9A36A]/80">
+              Puesta: --:--
             </span>
           </div>
-          <div class="text-[#C9A36A] p-1.5 bg-[#1C342B]/40 rounded-lg border border-[#A8864C]/20">
-            <svg class="w-4 h-4 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <div class="text-[#C9A36A] p-1 bg-[#1C342B]/40 rounded-lg border border-[#A8864C]/20">
+            <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <path d="M17 18a5 5 0 0 0-10 0"/>
               <line x1="12" y1="2" x2="12" y2="9"/>
               <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/>
-              <line x1="1" y1="18" x2="3" y2="18"/>
-              <line x1="21" y1="18" x2="23" y2="18"/>
               <line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/>
               <line x1="23" y1="22" x2="1" y2="22"/>
             </svg>
@@ -353,54 +368,54 @@
       </div>
 
       <!-- Próximas Horas: Cronología Continua -->
-      <div class="relative z-10 pt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[10px] font-display uppercase tracking-widest text-[#C9A36A] font-semibold flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <div class="relative z-10 pt-2.5">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[9px] font-display uppercase tracking-widest text-[#C9A36A] font-semibold flex items-center gap-1">
+            <svg class="w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <circle cx="12" cy="12" r="10"/>
               <polyline points="12 6 12 12 16 14"/>
             </svg>
             Pronóstico por Horas
           </span>
-          <span class="text-[10px] font-serif italic text-[#C9A36A]/75 hidden sm:inline">Próximas 24 horas</span>
+          <span class="text-[9px] font-serif italic text-[#C9A36A]/75 hide-on-s hidden sm:inline">Próximas 24 horas</span>
         </div>
 
-        <div id="hourly-forecast-container" class="flex gap-2 overflow-x-auto pb-2 custom-h-scroll">
+        <div id="hourly-forecast-container" class="flex gap-1.5 overflow-x-auto pb-1.5 custom-h-scroll">
           <!-- Rellenado dinámico con las próximas 24 horas -->
         </div>
       </div>
 
       <!-- Pronóstico Semanal: 7 Días -->
-      <div class="relative z-10 pt-4 mt-3 border-t border-[#A8864C]/25">
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[10px] font-display uppercase tracking-widest text-[#C9A36A] font-semibold flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <div class="relative z-10 pt-2.5 mt-2 border-t border-[#A8864C]/25">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[9px] font-display uppercase tracking-widest text-[#C9A36A] font-semibold flex items-center gap-1">
+            <svg class="w-3 h-3 text-[#C9A36A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
               <line x1="16" y1="2" x2="16" y2="6"/>
               <line x1="8" y1="2" x2="8" y2="6"/>
               <line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
-            Pronóstico para los Próximos 7 Días
+            Pronóstico de 7 Días
           </span>
-          <span id="forecast-range-badge" class="text-[10px] font-serif italic text-[#E8D9B0]/75">
-            Próximos 7 días
+          <span id="forecast-range-badge" class="text-[9px] font-serif italic text-[#E8D9B0]/75">
+            Semana
           </span>
         </div>
 
-        <div id="daily-forecast-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
+        <div id="daily-forecast-container" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 daily-compact-s gap-1.5">
           <!-- Rellenado dinámico con los 7 días -->
         </div>
       </div>
 
       <!-- Pie de página con saltos a ciudades de referencia -->
-      <div class="relative z-10 mt-4 pt-2.5 border-t border-[#A8864C]/20 flex items-center justify-between flex-wrap gap-2 text-[10px] sm:text-[11px] text-[#C9A36A]/90 font-serif">
-        <span class="italic">Ciudades destacadas:</span>
-        <div class="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-          <button onclick="loadCityDirectly('Madrid', 40.4168, -3.7038, 'ES')" class="px-2 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[9px]">Madrid</button>
-          <button onclick="loadCityDirectly('Oxford', 51.7520, -1.2577, 'GB')" class="px-2 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[9px]">Oxford</button>
-          <button onclick="loadCityDirectly('Edimburgo', 55.9533, -3.1883, 'GB')" class="px-2 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[9px]">Edimburgo</button>
-          <button onclick="loadCityDirectly('París', 48.8566, 2.3522, 'FR')" class="px-2 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[9px]">París</button>
-          <button onclick="loadCityDirectly('Salamanca', 40.9701, -5.6635, 'ES')" class="px-2 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[9px]">Salamanca</button>
+      <div class="relative z-10 mt-2.5 pt-2 border-t border-[#A8864C]/20 flex items-center justify-between flex-wrap gap-1.5 text-[9px] text-[#C9A36A]/90 font-serif">
+        <span class="italic hide-on-s">Ciudades:</span>
+        <div class="flex items-center gap-1 flex-wrap">
+          <button onclick="loadCityDirectly('Madrid', 40.4168, -3.7038, 'ES')" class="px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[8px]">Madrid</button>
+          <button onclick="loadCityDirectly('Oxford', 51.7520, -1.2577, 'GB')" class="px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[8px]">Oxford</button>
+          <button onclick="loadCityDirectly('Edimburgo', 55.9533, -3.1883, 'GB')" class="px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[8px]">Edimburgo</button>
+          <button onclick="loadCityDirectly('París', 48.8566, 2.3522, 'FR')" class="px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[8px]">París</button>
+          <button onclick="loadCityDirectly('Salamanca', 40.9701, -5.6635, 'ES')" class="px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A] hover:text-[#E8D9B0] hover:border-[#C9A36A] transition cursor-pointer font-display text-[8px]">Salamanca</button>
         </div>
       </div>
 
@@ -478,6 +493,7 @@
     /* GESTIÓN DE ESTADO & ALMACENAMIENTO                      */
     /* ======================================================== */
     const STORAGE_KEY_LOCATION = 'notion_weather_saved_coords_v1';
+    const STORAGE_KEY_WEATHER_SIZE = 'notion_weather_size_pref_v1';
 
     let currentLat = 40.4168; // Madrid por defecto
     let currentLon = -3.7038;
@@ -486,67 +502,217 @@
     let searchDebounceTimer = null;
     let weatherParticleAnimationId = null;
 
-    /**
-     * Inicia la petición de geolocalización al navegador.
-     */
-    function requestGeolocation() {
-      const btnGps = document.getElementById('btn-gps-location');
+    function setWeatherWidgetSize(size) {
+      const wrapper = document.getElementById('weather-main-wrapper');
+      if (!wrapper) return;
+
+      wrapper.classList.remove('widget-size-s', 'widget-size-m', 'widget-size-l');
+      ['s', 'm', 'l'].forEach(s => {
+        const btn = document.getElementById(`weather-size-btn-${s}`);
+        if (btn) {
+          if (s === size) {
+            btn.className = "px-1.5 py-0.5 rounded bg-[#6B2F41] text-[#E8D9B0] border border-[#C9A36A]/50 font-semibold cursor-pointer";
+          } else {
+            btn.className = "px-1.5 py-0.5 rounded text-[#C9A36A] hover:text-[#E8D9B0] transition cursor-pointer";
+          }
+        }
+      });
+
+      wrapper.classList.add(`widget-size-${size}`);
+      try {
+        localStorage.setItem(STORAGE_KEY_WEATHER_SIZE, size);
+      } catch (e) {}
+
+      // Reajustar partículas en canvas tras cambiar de tamaño
+      setTimeout(() => {
+        const canvas = document.getElementById('weather-particle-canvas');
+        if (canvas && canvas.parentElement) {
+          canvas.width = canvas.parentElement.offsetWidth;
+          canvas.height = canvas.parentElement.offsetHeight;
+        }
+      }, 150);
+    }
+
+    function restoreSavedWidgetSize() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_WEATHER_SIZE) || 'm';
+        setWeatherWidgetSize(saved);
+      } catch (e) {
+        setWeatherWidgetSize('m');
+      }
+    }
+
+    function restoreSavedLocation() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_LOCATION);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed.lat === 'number' && typeof parsed.lon === 'number') {
+            currentLat = parsed.lat;
+            currentLon = parsed.lon;
+            currentCityName = parsed.name || "Madrid";
+            currentCountryCode = parsed.country || "ES";
+            return true;
+          }
+        }
+      } catch (e) {
+        console.warn("No se pudo leer la ubicación guardada:", e);
+      }
+      return false;
+    }
+
+    function saveCurrentLocation() {
+      try {
+        localStorage.setItem(STORAGE_KEY_LOCATION, JSON.stringify({
+          lat: currentLat,
+          lon: currentLon,
+          name: currentCityName,
+          country: currentCountryCode
+        }));
+      } catch (e) {}
+    }
+
+    async function requestGeolocation() {
+      const gpsBtn = document.getElementById('btn-gps-location');
       const gpsIcon = document.getElementById('gps-icon');
+      if (gpsIcon) gpsIcon.classList.add('animate-spin');
+      showToast("Solicitando coordenadas GPS...");
 
       if (!navigator.geolocation) {
-        showToast("Tu navegador no soporta geolocalización GPS.");
+        showToast("GPS no compatible. Detectando por red IP...");
+        if (gpsIcon) gpsIcon.classList.remove('animate-spin');
+        detectLocationByIP();
         return;
       }
-
-      showToast("Obteniendo ubicación GPS...");
-      if (gpsIcon) gpsIcon.classList.add('animate-spin');
 
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           if (gpsIcon) gpsIcon.classList.remove('animate-spin');
           currentLat = position.coords.latitude;
           currentLon = position.coords.longitude;
-
-          try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLat}&lon=${currentLon}&zoom=10&accept-language=es`);
-            if (res.ok) {
-              const data = await res.json();
-              currentCityName = data.address.city || data.address.town || data.address.village || data.address.county || "Mi Ubicación";
-              currentCountryCode = (data.address.country_code || "GPS").toUpperCase();
-            } else {
-              currentCityName = "Mi Ubicación";
-              currentCountryCode = "GPS";
-            }
-          } catch (e) {
-            currentCityName = "Mi Ubicación";
-            currentCountryCode = "GPS";
-          }
-
+          showToast("Coordenadas obtenidas. Localizando municipio...");
+          await reverseGeocode(currentLat, currentLon);
           saveCurrentLocation();
           fetchWeatherData();
-          showToast(`Ubicación actualizada: ${currentCityName}`);
+          showToast(`Ubicación fijada: ${currentCityName}`);
         },
         (error) => {
           if (gpsIcon) gpsIcon.classList.remove('animate-spin');
-          let msg = "No se pudo acceder a la ubicación.";
-          if (error.code === error.PERMISSION_DENIED) {
-            msg = "Permiso de ubicación denegado. Utiliza el buscador.";
-          } else if (error.code === error.POSITION_UNAVAILABLE) {
-            msg = "Señal GPS no disponible. Utiliza el buscador manual.";
-          }
-          showToast(msg);
+          // En iframes de Notion, suele denegarse por políticas del navegador
+          console.warn("GPS restringido en el visor:", error.message);
+          showToast("GPS restringido en este visor. Localizando por red...");
+          detectLocationByIP();
         },
-        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+        { timeout: 9000, enableHighAccuracy: true, maximumAge: 60000 }
       );
     }
 
-    function onCitySearchInput(query) {
+    async function detectLocationByIP(silent = false) {
+      const spinner = document.getElementById('search-spinner');
+      if (spinner && !silent) spinner.classList.remove('hidden');
+
+      // Servicio primario por IP: GeoJS (rápido, HTTPS y compatible con Notion)
+      try {
+        const res = await fetch('https://get.geojs.io/v1/ip/geo.json');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.latitude && data.longitude) {
+            currentLat = parseFloat(data.latitude);
+            currentLon = parseFloat(data.longitude);
+            currentCityName = data.city || "Mi Ubicación";
+            currentCountryCode = data.country_code || "ES";
+            saveCurrentLocation();
+            fetchWeatherData();
+            if (!silent) showToast(`Ubicación detectada: ${currentCityName}`);
+            if (spinner && !silent) spinner.classList.add('hidden');
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Fallo en geojs.io, consultando respaldo...", err);
+      }
+
+      // Servicio de respaldo secundario
+      try {
+        const res2 = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client');
+        if (res2.ok) {
+          const data2 = await res2.json();
+          if (data2 && typeof data2.latitude === 'number') {
+            currentLat = data2.latitude;
+            currentLon = data2.longitude;
+            currentCityName = data2.city || data2.locality || "Mi Ubicación";
+            currentCountryCode = data2.countryCode || "ES";
+            saveCurrentLocation();
+            fetchWeatherData();
+            if (!silent) showToast(`Ubicación detectada: ${currentCityName}`);
+            if (spinner && !silent) spinner.classList.add('hidden');
+            return;
+          }
+        }
+      } catch (err2) {
+        console.warn("Fallo en geocodificación secundaria por IP:", err2);
+      }
+
+      if (spinner && !silent) spinner.classList.add('hidden');
+      if (!silent) showToast("No se pudo detectar automáticamente. Usa el buscador de ciudad.");
+    }
+
+    async function reverseGeocode(lat, lon) {
+      try {
+        const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=es`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const d = await res.json();
+          currentCityName = d.city || d.locality || d.principalSubdivision || "Mi Ubicación";
+          currentCountryCode = d.countryCode || "ES";
+          return;
+        }
+      } catch (e) {
+        console.warn("Fallo en geocodificación inversa:", e);
+      }
+      currentCityName = "Mi Ubicación";
+    }
+
+    async function fetchWeatherData() {
+      const spinner = document.getElementById('search-spinner');
+      if (spinner) spinner.classList.remove('hidden');
+
+      const locNameEl = document.getElementById('weather-location-name');
+      const countryEl = document.getElementById('weather-country-code');
+      if (locNameEl) locNameEl.textContent = currentCityName;
+      if (countryEl) countryEl.textContent = currentCountryCode;
+
+      try {
+        const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,precipitation_probability,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,sunset,uv_index_max,precipitation_probability_max&timezone=auto`;
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("Fallo al conectar con la estación meteorológica");
+        const data = await res.json();
+        renderWeatherInterface(data);
+      } catch (err) {
+        console.error("Error meteorológico:", err);
+        showToast("Error al obtener el pronóstico");
+      } finally {
+        if (spinner) spinner.classList.add('hidden');
+      }
+    }
+
+    function loadCityDirectly(name, lat, lon, country) {
+      currentCityName = name;
+      currentLat = lat;
+      currentLon = lon;
+      currentCountryCode = country || "ES";
+      saveCurrentLocation();
+      fetchWeatherData();
+      showToast(`Cargando pronóstico para ${name}...`);
+    }
+
+    function onCitySearchInput(val) {
       clearTimeout(searchDebounceTimer);
       const dropdown = document.getElementById('city-results-dropdown');
       const spinner = document.getElementById('search-spinner');
+      const query = (val || '').trim();
 
-      const trimmed = query.trim();
-      if (trimmed.length < 2) {
+      if (query.length < 2) {
         if (dropdown) dropdown.classList.add('hidden');
         if (spinner) spinner.classList.add('hidden');
         return;
@@ -556,15 +722,15 @@
 
       searchDebounceTimer = setTimeout(async () => {
         try {
-          const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(trimmed)}&count=6&language=es&format=json`;
+          const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=es&format=json`;
           const res = await fetch(url);
-          if (spinner) spinner.classList.add('hidden');
-
           if (res.ok) {
             const data = await res.json();
             renderCitySearchResults(data.results || []);
           }
         } catch (e) {
+          console.warn("Error en el buscador de localidades:", e);
+        } finally {
           if (spinner) spinner.classList.add('hidden');
         }
       }, 350);
@@ -575,99 +741,34 @@
       if (!dropdown) return;
 
       if (!results || results.length === 0) {
-        dropdown.innerHTML = `<div class="p-3 text-xs text-[#C9A36A]/60 font-serif italic text-center">No se encontraron ciudades con ese nombre</div>`;
+        dropdown.innerHTML = `<div class="p-2.5 text-[10px] font-serif italic text-[#C9A36A]/70 text-center">Localidad no encontrada</div>`;
         dropdown.classList.remove('hidden');
         return;
       }
 
-      dropdown.innerHTML = results.map(city => {
-        const stateStr = city.admin1 ? `${city.admin1}, ` : '';
-        const country = city.country || city.country_code || '';
+      dropdown.innerHTML = results.map(item => {
+        const region = item.admin1 ? `, ${item.admin1}` : '';
+        const safeName = (item.name || '').replace(/'/g, "\\'");
+        const safeCountry = (item.country_code || '').toUpperCase();
         return `
-          <div onclick="selectCityFromSearch('${escapeQuotes(city.name)}', ${city.latitude}, ${city.longitude}, '${city.country_code || 'ES'}')" 
-               class="p-2.5 hover:bg-[#2C5242]/50 border-b border-[#A8864C]/20 last:border-0 cursor-pointer flex items-center justify-between text-xs transition">
-            <div class="truncate mr-2">
-              <span class="font-display font-semibold text-[#E8D9B0]">${city.name}</span>
-              <span class="text-[11px] font-serif italic text-[#C9A36A]/80 block truncate">${stateStr}${country}</span>
-            </div>
-            <span class="text-[9px] font-mono text-[#C9A36A] px-1.5 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 flex-shrink-0">
-              ${(city.country_code || '').toUpperCase()}
-            </span>
-          </div>
+          <button type="button" 
+                  onclick="selectCityItem('${safeName}', ${item.latitude}, ${item.longitude}, '${safeCountry}')" 
+                  class="w-full text-left p-2 hover:bg-[#2C5242]/70 border-b border-[#A8864C]/20 last:border-0 transition-colors flex items-center justify-between cursor-pointer">
+            <span class="font-display text-[10px] text-[#E8D9B0] truncate">${item.name}<span class="text-[#C9A36A]/70 text-[9px] font-serif">${region}</span></span>
+            <span class="text-[8px] font-mono px-1 py-0.5 rounded bg-[#15131C] border border-[#A8864C]/30 text-[#C9A36A]">${safeCountry}</span>
+          </button>
         `;
       }).join('');
 
       dropdown.classList.remove('hidden');
     }
 
-    function selectCityFromSearch(name, lat, lon, countryCode) {
-      currentCityName = name;
-      currentLat = lat;
-      currentLon = lon;
-      currentCountryCode = countryCode.toUpperCase();
-
+    function selectCityItem(name, lat, lon, country) {
       const dropdown = document.getElementById('city-results-dropdown');
       const input = document.getElementById('city-search-input');
       if (dropdown) dropdown.classList.add('hidden');
       if (input) input.value = '';
-
-      saveCurrentLocation();
-      fetchWeatherData();
-      showToast(`Cargando el tiempo en ${name}`);
-    }
-
-    function loadCityDirectly(name, lat, lon, code) {
-      selectCityFromSearch(name, lat, lon, code);
-    }
-
-    function escapeQuotes(str) {
-      return (str || '').replace(/'/g, "\\'");
-    }
-
-    function saveCurrentLocation() {
-      try {
-        localStorage.setItem(STORAGE_KEY_LOCATION, JSON.stringify({
-          lat: currentLat,
-          lon: currentLon,
-          name: currentCityName,
-          code: currentCountryCode
-        }));
-      } catch (e) {}
-    }
-
-    function restoreSavedLocation() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY_LOCATION);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed.lat && parsed.lon) {
-            currentLat = parsed.lat;
-            currentLon = parsed.lon;
-            currentCityName = parsed.name || "Madrid";
-            currentCountryCode = parsed.code || "ES";
-          }
-        }
-      } catch (e) {}
-    }
-
-    async function fetchWeatherData() {
-      const locNameEl = document.getElementById('weather-location-name');
-      const countryEl = document.getElementById('weather-country-code');
-      if (locNameEl) locNameEl.textContent = currentCityName;
-      if (countryEl) countryEl.textContent = currentCountryCode;
-
-      try {
-        const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max&timezone=auto&forecast_days=7`;
-
-        const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error("Fallo al conectar con el servicio meteorológico.");
-
-        const data = await response.json();
-        renderWeatherInterface(data);
-      } catch (err) {
-        showToast("Error de conexión con el servicio meteorológico.");
-        console.error(err);
-      }
+      loadCityDirectly(name, lat, lon, country);
     }
 
     function renderWeatherInterface(data) {
@@ -973,8 +1074,13 @@
     });
 
     window.addEventListener('DOMContentLoaded', () => {
-      restoreSavedLocation();
+      restoreSavedWidgetSize();
+      const hasSaved = restoreSavedLocation();
       fetchWeatherData();
+      // Si el usuario aún no tiene ubicación guardada, detectar automáticamente por IP sin bloquear
+      if (!hasSaved) {
+        detectLocationByIP(true);
+      }
       // Actualizar automáticamente cada 15 minutos
       setInterval(fetchWeatherData, 900000);
     });
