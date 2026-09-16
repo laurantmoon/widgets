@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro • Dark Academia</title>
+  
+  <!-- Tipografías Google Fonts: Cinzel & Cormorant Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'casi-negro': '#15131C',
+            'carbon-sombrio': '#1C342B',
+            'azul-verde': '#2C5242',
+            'marron-violeta': '#4A1F2B',
+            'purpura-marron': '#6B2F41',
+            'marron-cafe': '#A8864C',
+            'marron-arenisca': '#C9A36A',
+            'beige-sombrio': '#E8D9B0',
+            'notion-dark': '#191919'
+          },
+          fontFamily: {
+            cinzel: ['Cinzel', 'serif'],
+            cormorant: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          },
+          boxShadow: {
+            'antique': '0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(74, 31, 43, 0.3)',
+            'candle-glow': '0 0 15px 2px rgba(201, 163, 106, 0.35)',
+            'inner-engrave': 'inset 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(21, 19, 28, 0.8)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilos base Dark Academia & Animaciones */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #15131C;
+      color: #E8D9B0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Fondo texturizado sutil tipo biblioteca / pergamino oscuro */
+    .dark-academia-bg {
+      background-color: #15131C;
+      background-image: 
+        radial-gradient(ellipse at top, rgba(44, 82, 66, 0.18), transparent 70%),
+        radial-gradient(ellipse at bottom, rgba(74, 31, 43, 0.22), transparent 70%),
+        radial-gradient(circle at 50% 50%, rgba(28, 52, 43, 0.12), transparent 85%);
+    }
+
+    /* Animación de la Llama Original (Flicker sutil y místico) */
+    .candle-flame {
+      animation: flameFlicker 1.9s infinite ease-in-out alternate;
+      transform-origin: 16px 22px;
+    }
+
+    @keyframes flameFlicker {
+      0% {
+        transform: scale(1) rotate(-1deg);
+        opacity: 0.92;
+        filter: drop-shadow(0 0 4px #C9A36A) drop-shadow(0 0 10px rgba(201, 163, 106, 0.5));
+      }
+      50% {
+        transform: scale(1.12) rotate(1.5deg);
+        opacity: 1;
+        filter: drop-shadow(0 0 9px #E8D9B0) drop-shadow(0 0 18px rgba(232, 217, 176, 0.6));
+      }
+      100% {
+        transform: scale(0.96) rotate(-0.8deg);
+        opacity: 0.88;
+        filter: drop-shadow(0 0 5px #C9A36A) drop-shadow(0 0 12px rgba(201, 163, 106, 0.4));
+      }
+    }
+
+    .candle-flame-paused {
+      animation: none !important;
+      opacity: 0.38 !important;
+      filter: drop-shadow(0 0 2px #C9A36A);
+      transition: all 0.5s ease;
+    }
+
+    /* Transición suave para derretimiento de cera y descenso de mecha */
+    #candle-wax, #candle-flame-group {
+      transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1), y 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), fill 0.6s ease;
+    }
+
+    /* Scrollbars elegantes */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #15131C;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4A1F2B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A8864C;
+    }
+
+    /* Slider de volumen personalizado */
+    input[type=range] {
+      accent-color: #C9A36A;
+    }
+  </style>
+</head>
+
+<body class="dark-academia-bg min-h-screen flex items-center justify-center p-3 sm:p-6">
+
+  <!-- CONTENEDOR PRINCIPAL GRIMOIRE / TEMPLUM FOCUS -->
+  <main class="w-full max-w-xl bg-casi-negro/92 backdrop-blur-md border border-marron-arenisca/35 rounded-xl p-5 sm:p-7 shadow-antique relative overflow-hidden text-beige-sombrio">
+    
+    <!-- Esquinas Ornamentales Góticas / Victorianas -->
+    <div class="absolute top-2 left-2 text-marron-cafe/40 text-xs select-none">🙦</div>
+    <div class="absolute top-2 right-2 text-marron-cafe/40 text-xs select-none">🙤</div>
+    <div class="absolute bottom-2 left-2 text-marron-cafe/40 text-xs select-none">🙦</div>
+    <div class="absolute bottom-2 right-2 text-marron-cafe/40 text-xs select-none">🙤</div>
+
+    <!-- ENCABEZADO: Título y Controles de Ambiente -->
+    <header class="flex items-center justify-between border-b border-marron-cafe/30 pb-3 mb-4">
+      <div class="flex items-center space-x-2">
+        <span class="text-marron-arenisca text-sm tracking-widest font-cinzel font-semibold">TEMPLVM FOCUS</span>
+        <span class="text-marron-cafe text-xs">✦</span>
+        <span class="text-xs tracking-wider text-marron-arenisca/70 uppercase font-cinzel">Notion Chronos</span>
+      </div>
+
+      <!-- Iconos de Audio, Parking Lot y Exportación -->
+      <div class="flex items-center space-x-2.5 text-sm">
+        
+        <!-- Toggle Chimenea / Ruido Marrón -->
+        <div class="flex items-center space-x-1.5 bg-carbon-sombrio/60 border border-marron-cafe/30 px-2 py-1 rounded">
+          <button id="ambientToggleBtn" title="Encender/apagar chimenea ambiental (Ruido Marrón)" class="text-marron-arenisca/70 hover:text-marron-arenisca transition">
+            <svg id="ambientIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z"/>
+            </svg>
+          </button>
+          <input id="ambientVol" type="range" min="0" max="1" step="0.05" value="0.3" title="Volumen Chimenea" class="w-11 h-1 bg-casi-negro rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Mute Alertas (Campana Tibetana) -->
+        <button id="muteBellBtn" title="Silenciar / Activar Campana de fin de bloque" class="p-1.5 rounded text-marron-arenisca/80 hover:text-beige-sombrio hover:bg-carbon-sombrio/50 transition border border-transparent hover:border-marron-cafe/30">
+          <svg id="bellIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+          </svg>
+        </button>
+
+        <!-- Botón Pluma (Parking Lot / Marginalia) -->
+        <button id="openMarginaliaBtn" title="Abrir Cajón de Pensamientos Intrusivos (Marginalia)" class="relative p-1.5 rounded text-marron-arenisca/90 hover:text-beige-sombrio hover:bg-marron-violeta/40 border border-marron-cafe/40 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
+          </svg>
+          <span id="marginaliaBadge" class="hidden absolute -top-1.5 -right-1.5 bg-purpura-marron text-beige-sombrio text-[10px] font-cinzel font-bold px-1 rounded-full border border-marron-arenisca">0</span>
+        </button>
+
+        <!-- Botón Exportar Bitácora -->
+        <button id="openExportBtn" title="Exportar Bitácora a Notion" class="p-1.5 rounded text-marron-arenisca/90 hover:text-beige-sombrio hover:bg-azul-verde/50 border border-marron-cafe/40 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- CAMPO DE INTENCIÓN FILOSÓFICA -->
+    <div class="mb-5">
+      <div class="relative">
+        <input id="focusIntention" type="text" 
+          placeholder="¿En qué estás profundizando hoy?" 
+          class="w-full bg-carbon-sombrio/40 border-b border-marron-cafe/50 focus:border-marron-arenisca text-beige-sombrio placeholder-marron-arenisca/40 text-center py-1.5 px-3 text-sm focus:outline-none transition font-cormorant italic tracking-wide"
+        />
+        <div class="text-[10px] text-center text-marron-arenisca/60 tracking-widest uppercase font-cinzel mt-1">Intención de la Sesión</div>
+      </div>
+    </div>
+
+    <!-- SELECTOR DE MODOS -->
+    <nav class="grid grid-cols-3 gap-2 mb-5 font-cinzel text-xs">
+      <button id="modeFocus" class="mode-btn py-1.5 px-2 rounded border border-marron-cafe/60 bg-marron-violeta text-beige-sombrio font-semibold shadow-inner-engrave tracking-wider transition">
+        Enfoque
+      </button>
+      <button id="modeShort" class="mode-btn py-1.5 px-2 rounded border border-marron-cafe/30 bg-carbon-sombrio/40 hover:bg-carbon-sombrio text-marron-arenisca tracking-wider transition">
+        Pausa Corta
+      </button>
+      <button id="modeLong" class="mode-btn py-1.5 px-2 rounded border border-marron-cafe/30 bg-carbon-sombrio/40 hover:bg-carbon-sombrio text-marron-arenisca tracking-wider transition">
+        Pausa Larga
+      </button>
+    </nav>
+
+    <!-- SELECTORES RÁPIDOS DE DURACIÓN (Modo Enfoque) -->
+    <div id="focusPresets" class="flex items-center justify-center space-x-3 mb-4 text-xs font-cinzel text-marron-arenisca/80">
+      <span class="text-[10px] text-marron-cafe tracking-widest uppercase mr-1">Ritmo:</span>
+      <button data-mins="15" class="preset-btn px-2.5 py-0.5 rounded border border-marron-cafe/30 hover:border-marron-arenisca hover:text-beige-sombrio transition">15m</button>
+      <button data-mins="25" class="preset-btn px-2.5 py-0.5 rounded border border-marron-cafe/70 bg-marron-cafe/20 text-beige-sombrio font-bold transition">25m</button>
+      <button data-mins="50" class="preset-btn px-2.5 py-0.5 rounded border border-marron-cafe/30 hover:border-marron-arenisca hover:text-beige-sombrio transition">50m</button>
+      <button id="customTimeBtn" class="preset-btn px-2.5 py-0.5 rounded border border-marron-cafe/30 hover:border-marron-arenisca text-[11px] transition">Ajustar</button>
+    </div>
+
+    <!-- ESCENARIO CENTRAL: VELA ORIGINAL & CRONÓMETRO CINZEL -->
+    <section class="flex flex-col sm:flex-row items-center justify-center gap-7 my-4 py-2">
+      
+      <!-- CONTENEDOR DE LA VELA ESTILO ORIGINAL REFINADO -->
+      <div class="flex flex-col items-center justify-center" title="Cirio místico: la cera se consume durante la sesión">
+        <!-- SVG Vela Silueta Original (viewBox 0 0 32 64) con derretimiento y descenso proporcional -->
+        <div class="relative p-2 rounded-xl bg-casi-negro/80 border border-marron-cafe/40 shadow-inner flex items-center justify-center">
+          <svg class="w-10 h-20 sm:w-12 sm:h-24" viewBox="0 0 32 64" fill="none">
+            <!-- Halo de resplandor áurico -->
+            <circle cx="16" cy="18" r="14" fill="#C9A36A" fill-opacity="0.12" class="pointer-events-none"/>
+
+            <!-- GRUPO MÓVIL: Mecha y Llama (descienden conforme la cera se consume) -->
+            <g id="candle-flame-group" transform="translate(0, 0)">
+              <!-- Mecha original -->
+              <path d="M16 26v4" stroke="#A8864C" stroke-width="2" stroke-linecap="round"/>
+              <!-- Llama estilizada original (gota gótica) -->
+              <path id="candle-flame-element" class="candle-flame" d="M16 6c-4 5.5-5 9.5-5 13.5a5 5 0 0 0 10 0c0-4-1-8-5-13.5z" fill="#C9A36A"/>
+            </g>
+
+            <!-- CUERPO DE CERA ORIGINAL (Reactivo al color del modo y a la altura en tiempo real) -->
+            <!-- Base fija en y = 60. Altura máxima = 30 (y: 30 a 60). Altura mínima = 8 (y: 52 a 60) -->
+            <rect id="candle-wax" x="8" y="30" width="16" height="30" rx="2.5" fill="#4A1F2B" stroke="#A8864C" stroke-width="1.3"/>
+            
+            <!-- Plato de soporte inferior sutil -->
+            <line x1="4" y1="61" x2="28" y2="61" stroke="#A8864C" stroke-width="1.6" stroke-linecap="round" opacity="0.6"/>
+          </svg>
+        </div>
+
+        <!-- RASTREADOR DE CICLO: DIAMANTES ORIGINALES (◆ / ◇) -->
+        <div class="flex items-center gap-1.5 mt-2.5 text-xs font-cinzel text-marron-arenisca" id="pomo-cycle-tracker" title="Ciclo de 4 pomodoros antes de la pausa larga">
+          <span class="cycle-diamond text-marron-arenisca">◆</span>
+          <span class="cycle-diamond opacity-40">◇</span>
+          <span class="cycle-diamond opacity-40">◇</span>
+          <span class="cycle-diamond opacity-40">◇</span>
+        </div>
+      </div>
+
+      <!-- Reloj Digital y Display Cinzel -->
+      <div class="text-center sm:text-left flex flex-col items-center sm:items-start">
+        <div id="sessionModeTitle" class="text-xs font-cinzel tracking-widest text-marron-arenisca uppercase mb-1 flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-azul-verde"></span>
+          <span>Período de Concentración</span>
+        </div>
+
+        <div id="timeDisplay" class="font-cinzel text-5xl sm:text-6xl font-bold tracking-tight text-beige-sombrio drop-shadow-[0_2px_10px_rgba(201,163,106,0.3)]">
+          25:00
+        </div>
+
+        <div id="cycleLabel" class="text-xs font-cormorant italic text-marron-arenisca/90 mt-2">
+          Bloque 1 de 4 (Ritmo de Enfoque)
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTONERA PRINCIPAL DE CONTROL -->
+    <div class="flex items-center justify-center space-x-4 my-5">
+      <!-- Botón Iniciar / Pausar -->
+      <button id="startPauseBtn" class="font-cinzel text-sm uppercase tracking-widest px-8 py-2.5 rounded-lg bg-purpura-marron hover:bg-marron-violeta border border-marron-arenisca/60 text-beige-sombrio font-bold shadow-antique transition active:scale-95 flex items-center space-x-2">
+        <svg id="playIcon" class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <span id="playText">Comenzar</span>
+      </button>
+
+      <!-- Botón Reiniciar -->
+      <button id="resetBtn" title="Reiniciar tiempo actual" class="p-2.5 rounded-lg bg-carbon-sombrio/50 hover:bg-carbon-sombrio border border-marron-cafe/40 text-marron-arenisca hover:text-beige-sombrio transition active:scale-95">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+        </svg>
+      </button>
+
+      <!-- Botón Saltar Bloque -->
+      <button id="skipBtn" title="Pasar al siguiente intervalo" class="p-2.5 rounded-lg bg-carbon-sombrio/50 hover:bg-carbon-sombrio border border-marron-cafe/40 text-marron-arenisca hover:text-beige-sombrio transition active:scale-95">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polygon points="5 4 15 12 5 20 5 4" fill="currentColor"/>
+          <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- MÉTRICAS ACUMULATIVAS DEL DÍA -->
+    <div class="flex items-center justify-between border-t border-marron-cafe/30 pt-3 text-xs font-cormorant">
+      <div class="flex items-center space-x-2">
+        <span class="text-marron-arenisca/80">Sesiones culminadas hoy:</span>
+        <span id="dailyTotalDisplay" class="font-cinzel font-bold text-beige-sombrio bg-carbon-sombrio px-2 py-0.5 rounded border border-marron-cafe/30">0</span>
+      </div>
+      <div class="text-marron-arenisca/70">
+        <span id="dailyMinutesDisplay">0</span> min dedicados
+      </div>
+    </div>
+
+    <!-- CITA FILOSÓFICA ROTATIVA -->
+    <footer class="mt-4 pt-3 border-t border-marron-cafe/20 text-center">
+      <p id="philosophicalQuote" class="text-xs italic text-beige-sombrio/80 font-cormorant cursor-pointer hover:text-marron-arenisca transition" title="Haz clic para leer otra máxima estoica">
+        "La mente que se entrega al estudio paciente cosecha la calma." — Séneca
+      </p>
+    </footer>
+
+    <!-- MODAL: CAJÓN DE PENSAMIENTOS INTRUSIVOS (PARKING LOT / MARGINALIA) -->
+    <div id="marginaliaModal" class="hidden absolute inset-0 bg-casi-negro/96 backdrop-blur-md z-30 p-6 flex flex-col transition-all">
+      <div class="flex items-center justify-between border-b border-marron-cafe/40 pb-2 mb-3">
+        <div class="flex items-center space-x-2">
+          <span class="text-marron-arenisca font-cinzel text-xs uppercase tracking-widest">🪶 Marginalia & Pensamientos Intrusivos</span>
+        </div>
+        <button id="closeMarginaliaBtn" class="text-marron-arenisca hover:text-beige-sombrio text-lg font-bold">&times;</button>
+      </div>
+      
+      <p class="text-xs font-cormorant italic text-beige-sombrio/70 mb-3">
+        Anota cualquier pensamiento imprevisto, distracción o tarea súbita para liberarte de la urgencia sin quebrar tu estado de flujo.
+      </p>
+
+      <form id="noteForm" class="flex gap-2 mb-4">
+        <input id="newNoteInput" type="text" placeholder="Idea repentina o pendiente..." 
+          class="flex-1 bg-carbon-sombrio/60 border border-marron-cafe/50 rounded px-3 py-1.5 text-xs text-beige-sombrio placeholder-marron-arenisca/40 focus:outline-none focus:border-marron-arenisca font-cormorant"
+        />
+        <button type="submit" class="bg-marron-violeta hover:bg-purpura-marron text-beige-sombrio text-xs font-cinzel px-3 py-1.5 rounded border border-marron-cafe/50 transition">
+          Guardar
+        </button>
+      </form>
+
+      <div id="notesContainer" class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs">
+        <!-- Generado dinámicamente -->
+      </div>
+    </div>
+
+    <!-- MODAL: EXPORTADOR DE BITÁCORA A NOTION -->
+    <div id="exportModal" class="hidden absolute inset-0 bg-casi-negro/96 backdrop-blur-md z-30 p-6 flex flex-col transition-all">
+      <div class="flex items-center justify-between border-b border-marron-cafe/40 pb-2 mb-3">
+        <div class="flex items-center space-x-2">
+          <span class="text-marron-arenisca font-cinzel text-xs uppercase tracking-widest">📜 Bitácora de Enfoque • Notion</span>
+        </div>
+        <button id="closeExportBtn" class="text-marron-arenisca hover:text-beige-sombrio text-lg font-bold">&times;</button>
+      </div>
+
+      <p class="text-xs font-cormorant italic text-beige-sombrio/70 mb-2">
+        Previsualización de la bitácora estructurada en Markdown, lista para integrarse en tu diario de trabajo o base de datos Notion.
+      </p>
+
+      <div class="flex-1 bg-carbon-sombrio/30 border border-marron-cafe/40 rounded p-3 mb-4 overflow-y-auto font-mono text-[11px] text-beige-sombrio/90 whitespace-pre-wrap select-all" id="markdownPreview">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <div class="flex items-center justify-end space-x-3">
+        <button id="copyMdBtn" class="bg-azul-verde hover:bg-azul-verde/80 text-beige-sombrio text-xs font-cinzel px-4 py-2 rounded border border-marron-arenisca/60 transition flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          <span id="copyBtnText">Copiar Bitácora</span>
+        </button>
+        <button id="downloadMdBtn" class="bg-marron-violeta hover:bg-purpura-marron text-beige-sombrio text-xs font-cinzel px-4 py-2 rounded border border-marron-cafe/60 transition flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          <span>Descargar .md</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- NOTIFICACIÓN FLOTANTE (TOAST) -->
+    <div id="toastNotification" class="hidden absolute top-4 left-1/2 -translate-x-1/2 bg-carbon-sombrio border border-marron-arenisca text-beige-sombrio font-cinzel text-xs px-4 py-1.5 rounded shadow-lg transition-all z-40">
+      Copiado al portapapeles
+    </div>
+
+  </main>
+
+  <!-- LÓGICA JAVASCRIPT VANILLA & WEB AUDIO API -->
+  <script>
+    /* ==========================================================================
+       1. ESTADO GLOBAL Y CONFIGURACIÓN INICIAL
+       ========================================================================== */
+    const MODES = {
+      focus: { name: 'Enfoque', defaultMinutes: 25, color: '#4A1F2B' },
+      shortBreak: { name: 'Pausa Corta', defaultMinutes: 5, color: '#2C5242' },
+      longBreak: { name: 'Pausa Larga', defaultMinutes: 15, color: '#1C342B' }
+    };
+
+    let currentMode = 'focus';
+    let timerDuration = MODES.focus.defaultMinutes * 60;
+    let timeLeft = timerDuration;
+    let timerInterval = null;
+    let isRunning = false;
+    let currentBlock = 0; // 0 a 3 (4 bloques por ciclo)
+
+    // Métricas
+    let dailyCompleted = 0;
+    let totalFocusMinutesToday = 0;
+    let sessionBreaksCount = 0;
+
+    // Web Audio API
+    let audioCtx = null;
+    let brownNoiseSource = null;
+    let brownNoiseGain = null;
+    let isAmbientPlaying = false;
+    let isMuted = false;
+
+    // Marginalia
+    let marginaliaNotes = [];
+
+    // Citas Filosóficas
+    const QUOTES = [
+      { text: "La mente que se entrega al estudio paciente cosecha la calma.", author: "Séneca" },
+      { text: "La quietud de la mente es el templo donde florece la sabiduría.", author: "Marco Aurelio" },
+      { text: "Pueden porque creen que pueden.", author: "Virgilio" },
+      { text: "No hay barrera, cerradura ni cerrojo que puedas imponer a la libertad de mi mente.", author: "Virginia Woolf" },
+      { text: "El tiempo que disfrutas perdiendo en noble contemplación no es tiempo perdido.", author: "Bertrand Russell" },
+      { text: "Comenzar es ya la mitad de la obra; atrévete a saber.", author: "Horacio" },
+      { text: "Dondequiera que vayas, ve con todo tu corazón.", author: "Confucio" }
+    ];
+
+    /* ==========================================================================
+       2. ELEMENTOS DEL DOM
+       ========================================================================== */
+    const timeDisplay = document.getElementById('timeDisplay');
+    const sessionModeTitle = document.getElementById('sessionModeTitle');
+    const startPauseBtn = document.getElementById('startPauseBtn');
+    const playIcon = document.getElementById('playIcon');
+    const playText = document.getElementById('playText');
+    const resetBtn = document.getElementById('resetBtn');
+    const skipBtn = document.getElementById('skipBtn');
+    const focusPresets = document.getElementById('focusPresets');
+    const customTimeBtn = document.getElementById('customTimeBtn');
+    const focusIntention = document.getElementById('focusIntention');
+    
+    // Modos
+    const modeFocus = document.getElementById('modeFocus');
+    const modeShort = document.getElementById('modeShort');
+    const modeLong = document.getElementById('modeLong');
+    const modeButtons = [modeFocus, modeShort, modeLong];
+
+    // Vela interactiva original
+    const candleWax = document.getElementById('candle-wax');
+    const candleFlame = document.getElementById('candle-flame-element');
+    const candleFlameGroup = document.getElementById('candle-flame-group');
+    const pomoCycleTracker = document.getElementById('pomo-cycle-tracker');
+    const cycleLabel = document.getElementById('cycleLabel');
+
+    // Métricas
+    const dailyTotalDisplay = document.getElementById('dailyTotalDisplay');
+    const dailyMinutesDisplay = document.getElementById('dailyMinutesDisplay');
+    const philosophicalQuote = document.getElementById('philosophicalQuote');
+
+    // Audio Controls
+    const ambientToggleBtn = document.getElementById('ambientToggleBtn');
+    const ambientVol = document.getElementById('ambientVol');
+    const ambientIcon = document.getElementById('ambientIcon');
+    const muteBellBtn = document.getElementById('muteBellBtn');
+    const bellIcon = document.getElementById('bellIcon');
+
+    // Marginalia
+    const openMarginaliaBtn = document.getElementById('openMarginaliaBtn');
+    const closeMarginaliaBtn = document.getElementById('closeMarginaliaBtn');
+    const marginaliaModal = document.getElementById('marginaliaModal');
+    const noteForm = document.getElementById('noteForm');
+    const newNoteInput = document.getElementById('newNoteInput');
+    const notesContainer = document.getElementById('notesContainer');
+    const marginaliaBadge = document.getElementById('marginaliaBadge');
+
+    // Exportación Notion
+    const openExportBtn = document.getElementById('openExportBtn');
+    const closeExportBtn = document.getElementById('closeExportBtn');
+    const exportModal = document.getElementById('exportModal');
+    const markdownPreview = document.getElementById('markdownPreview');
+    const copyMdBtn = document.getElementById('copyMdBtn');
+    const downloadMdBtn = document.getElementById('downloadMdBtn');
+    const copyBtnText = document.getElementById('copyBtnText');
+    const toastNotification = document.getElementById('toastNotification');
+
+    /* ==========================================================================
+       3. WEB AUDIO API: PROCEDURAL BROWN NOISE & TIBETAN BELL
+       ========================================================================== */
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function initBrownNoise() {
+      const ctx = getAudioContext();
+      const bufferSize = ctx.sampleRate * 4;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = buffer.getChannelData(0);
+      
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        lastOut = (lastOut + (0.02 * white)) / 1.02;
+        const emberCrackle = (Math.random() < 0.0007) ? (Math.random() * 0.35 - 0.175) : 0;
+        output[i] = (lastOut * 3.2) + emberCrackle;
+      }
+
+      brownNoiseSource = ctx.createBufferSource();
+      brownNoiseSource.buffer = buffer;
+      brownNoiseSource.loop = true;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(380, ctx.currentTime);
+
+      brownNoiseGain = ctx.createGain();
+      brownNoiseGain.gain.setValueAtTime(parseFloat(ambientVol.value), ctx.currentTime);
+
+      brownNoiseSource.connect(filter);
+      filter.connect(brownNoiseGain);
+      brownNoiseGain.connect(ctx.destination);
+
+      brownNoiseSource.start();
+    }
+
+    function toggleAmbientAudio() {
+      getAudioContext();
+      if (!isAmbientPlaying) {
+        initBrownNoise();
+        isAmbientPlaying = true;
+        ambientIcon.classList.add('text-marron-arenisca');
+        ambientIcon.classList.remove('text-marron-arenisca/70');
+        ambientToggleBtn.classList.add('bg-marron-violeta/40');
+      } else {
+        if (brownNoiseSource) {
+          try {
+            brownNoiseSource.stop();
+            brownNoiseSource.disconnect();
+          } catch(e) {}
+        }
+        isAmbientPlaying = false;
+        ambientIcon.classList.remove('text-marron-arenisca');
+        ambientIcon.classList.add('text-marron-arenisca/70');
+        ambientToggleBtn.classList.remove('bg-marron-violeta/40');
+      }
+    }
+
+    ambientToggleBtn.addEventListener('click', toggleAmbientAudio);
+    ambientVol.addEventListener('input', (e) => {
+      if (brownNoiseGain && audioCtx) {
+        brownNoiseGain.gain.setValueAtTime(parseFloat(e.target.value), audioCtx.currentTime);
+      }
+    });
+
+    function playTibetanBell() {
+      if (isMuted) return;
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+
+      const harmonics = [
+        { freq: 432.0, gain: 0.38, decay: 4.2 },
+        { freq: 864.0, gain: 0.18, decay: 3.5 },
+        { freq: 1296.0, gain: 0.10, decay: 2.8 },
+        { freq: 1728.0, gain: 0.04, decay: 2.0 }
+      ];
+
+      harmonics.forEach(h => {
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(h.freq + (Math.random() * 0.8 - 0.4), now);
+
+        gainNode.gain.setValueAtTime(h.gain, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + h.decay);
+
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + h.decay + 0.1);
+      });
+    }
+
+    muteBellBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      if (isMuted) {
+        bellIcon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"/>
+        `;
+        muteBellBtn.classList.add('text-marron-violeta');
+      } else {
+        bellIcon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+        `;
+        muteBellBtn.classList.remove('text-marron-violeta');
+      }
+    });
+
+    /* ==========================================================================
+       4. MECÁNICA Y DERRETIMIENTO DE LA VELA ORIGINAL
+       ========================================================================== */
+    function updateCandleVisuals() {
+      // Estado de animación de la llama original
+      if (isRunning) {
+        candleFlame.classList.remove('candle-flame-paused');
+        candleFlame.classList.add('candle-flame');
+      } else {
+        candleFlame.classList.remove('candle-flame');
+        candleFlame.classList.add('candle-flame-paused');
+      }
+
+      // Consumo proporcional de la cera (Base fija en y = 60)
+      const maxWaxHeight = 30; // Altura intacta original (y: 30 a 60)
+      const minWaxHeight = 8;  // Altura mínima consumida
+      const baseY = 60;
+
+      let progressFraction = 0;
+      if (currentMode === 'focus') {
+        progressFraction = (timerDuration - timeLeft) / timerDuration;
+      } else {
+        progressFraction = (currentBlock / 4) * 0.5;
+      }
+
+      const currentHeight = maxWaxHeight - (progressFraction * (maxWaxHeight - minWaxHeight));
+      const currentY = baseY - currentHeight;
+      const verticalShift = maxWaxHeight - currentHeight;
+
+      // Actualizar atributos de cera y descenso de la mecha y llama
+      candleWax.setAttribute('height', currentHeight.toFixed(2));
+      candleWax.setAttribute('y', currentY.toFixed(2));
+      candleFlameGroup.setAttribute('transform', `translate(0, ${verticalShift.toFixed(2)})`);
+
+      // Color del cirio según modo
+      candleWax.setAttribute('fill', MODES[currentMode].color);
+    }
+
+    /* ==========================================================================
+       5. GESTIÓN DEL CRONÓMETRO Y MODOS
+       ========================================================================== */
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateTitleAndDisplay() {
+      const formatted = formatTime(timeLeft);
+      timeDisplay.textContent = formatted;
+
+      const modeLabel = MODES[currentMode].name;
+      document.title = `(${formatted}) ${modeLabel} • Notion Chronos`;
+    }
+
+    function switchMode(newMode, customDurationMinutes = null) {
+      clearInterval(timerInterval);
+      isRunning = false;
+      currentMode = newMode;
+
+      if (customDurationMinutes) {
+        timerDuration = customDurationMinutes * 60;
+      } else {
+        timerDuration = MODES[currentMode].defaultMinutes * 60;
+      }
+      timeLeft = timerDuration;
+
+      // Actualizar botones de modo
+      modeButtons.forEach(btn => {
+        btn.classList.remove('bg-marron-violeta', 'text-beige-sombrio', 'font-semibold', 'shadow-inner-engrave');
+        btn.classList.add('bg-carbon-sombrio/40', 'text-marron-arenisca');
+      });
+
+      if (newMode === 'focus') {
+        modeFocus.classList.add('bg-marron-violeta', 'text-beige-sombrio', 'font-semibold', 'shadow-inner-engrave');
+        modeFocus.classList.remove('bg-carbon-sombrio/40', 'text-marron-arenisca');
+        sessionModeTitle.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-azul-verde"></span><span>Período de Concentración</span>';
+        focusPresets.classList.remove('hidden');
+        cycleLabel.textContent = `Bloque ${currentBlock + 1} de 4 (Ritmo de Enfoque)`;
+      } else if (newMode === 'shortBreak') {
+        modeShort.classList.add('bg-marron-violeta', 'text-beige-sombrio', 'font-semibold', 'shadow-inner-engrave');
+        modeShort.classList.remove('bg-carbon-sombrio/40', 'text-marron-arenisca');
+        sessionModeTitle.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-marron-cafe"></span><span>Pausa Breve Reparadora</span>';
+        focusPresets.classList.add('hidden');
+        cycleLabel.textContent = 'Descanso corto de 5 minutos';
+      } else {
+        modeLong.classList.add('bg-marron-violeta', 'text-beige-sombrio', 'font-semibold', 'shadow-inner-engrave');
+        modeLong.classList.remove('bg-carbon-sombrio/40', 'text-marron-arenisca');
+        sessionModeTitle.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-purpura-marron"></span><span>Descanso Prolongado</span>';
+        focusPresets.classList.add('hidden');
+        cycleLabel.textContent = 'Descanso profundo de 15 minutos';
+      }
+
+      playText.textContent = 'Comenzar';
+      playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+
+      updateCandleVisuals();
+      updateTitleAndDisplay();
+    }
+
+    function tick() {
+      if (timeLeft > 0) {
+        timeLeft--;
+        updateTitleAndDisplay();
+        updateCandleVisuals();
+      } else {
+        clearInterval(timerInterval);
+        isRunning = false;
+        playTibetanBell();
+        handleSessionCompletion();
+      }
+    }
+
+    function toggleTimer() {
+      getAudioContext();
+      if (!isRunning) {
+        isRunning = true;
+        playText.textContent = 'Pausar';
+        playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+        timerInterval = setInterval(tick, 1000);
+      } else {
+        isRunning = false;
+        playText.textContent = 'Reanudar';
+        playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+        clearInterval(timerInterval);
+      }
+      updateCandleVisuals();
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isRunning = false;
+      timeLeft = timerDuration;
+      playText.textContent = 'Comenzar';
+      playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      updateCandleVisuals();
+      updateTitleAndDisplay();
+    }
+
+    function handleSessionCompletion() {
+      if (currentMode === 'focus') {
+        const completedMinutes = Math.round(timerDuration / 60);
+        dailyCompleted++;
+        totalFocusMinutesToday += completedMinutes;
+        saveDailyStats();
+        updateDailyStatsUI();
+
+        currentBlock = (currentBlock + 1) % 4;
+        renderPomoCycleTracker();
+
+        if (currentBlock === 0) {
+          showToast('¡Ciclo de 4 bloques cumplido! Disfruta tu descanso largo.');
+          switchMode('longBreak');
+        } else {
+          showToast(`¡Bloque ${currentBlock} culminado! Momento de un descanso corto.`);
+          switchMode('shortBreak');
+        }
+      } else {
+        sessionBreaksCount++;
+        showToast('Descanso finalizado. Reanudamos la concentración.');
+        switchMode('focus');
+      }
+    }
+
+    function renderPomoCycleTracker() {
+      if (!pomoCycleTracker) return;
+      let html = '';
+      for (let i = 0; i < 4; i++) {
+        if (i < currentBlock) {
+          html += '<span class="cycle-diamond text-marron-arenisca">◆</span>';
+        } else {
+          html += '<span class="cycle-diamond opacity-40">◇</span>';
+        }
+      }
+      pomoCycleTracker.innerHTML = html;
+      cycleLabel.textContent = `Bloque ${currentBlock + 1} de 4 (Ritmo de Enfoque)`;
+    }
+
+    /* ==========================================================================
+       6. PERSISTENCIA EN LOCALSTORAGE
+       ========================================================================== */
+    const STORAGE_KEYS = {
+      INTENTION: 'da_chrono_intention',
+      DATE: 'da_chrono_date',
+      COMPLETED: 'da_chrono_completed',
+      MINUTES: 'da_chrono_minutes',
+      NOTES: 'da_chrono_marginalia'
+    };
+
+    function loadSavedData() {
+      const today = new Date().toISOString().split('T')[0];
+      const savedDate = localStorage.getItem(STORAGE_KEYS.DATE);
+
+      if (savedDate === today) {
+        dailyCompleted = parseInt(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '0', 10);
+        totalFocusMinutesToday = parseInt(localStorage.getItem(STORAGE_KEYS.MINUTES) || '0', 10);
+      } else {
+        dailyCompleted = 0;
+        totalFocusMinutesToday = 0;
+        localStorage.setItem(STORAGE_KEYS.DATE, today);
+        saveDailyStats();
+      }
+
+      const savedIntention = localStorage.getItem(STORAGE_KEYS.INTENTION);
+      if (savedIntention) focusIntention.value = savedIntention;
+
+      const savedNotes = localStorage.getItem(STORAGE_KEYS.NOTES);
+      if (savedNotes) {
+        try {
+          marginaliaNotes = JSON.parse(savedNotes);
+        } catch(e) {
+          marginaliaNotes = [];
+        }
+      }
+      renderNotes();
+      updateDailyStatsUI();
+      renderPomoCycleTracker();
+    }
+
+    function saveDailyStats() {
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem(STORAGE_KEYS.DATE, today);
+      localStorage.setItem(STORAGE_KEYS.COMPLETED, dailyCompleted.toString());
+      localStorage.setItem(STORAGE_KEYS.MINUTES, totalFocusMinutesToday.toString());
+    }
+
+    function updateDailyStatsUI() {
+      dailyTotalDisplay.textContent = dailyCompleted;
+      dailyMinutesDisplay.textContent = totalFocusMinutesToday;
+    }
+
+    focusIntention.addEventListener('input', (e) => {
+      localStorage.setItem(STORAGE_KEYS.INTENTION, e.target.value);
+    });
+
+    /* ==========================================================================
+       7. CAJÓN DE PENSAMIENTOS INTRUSIVOS (MARGINALIA)
+       ========================================================================== */
+    function saveNotes() {
+      localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(marginaliaNotes));
+      updateMarginaliaBadge();
+    }
+
+    function updateMarginaliaBadge() {
+      const pendingCount = marginaliaNotes.filter(n => !n.done).length;
+      if (pendingCount > 0) {
+        marginaliaBadge.textContent = pendingCount;
+        marginaliaBadge.classList.remove('hidden');
+      } else {
+        marginaliaBadge.classList.add('hidden');
+      }
+    }
+
+    function renderNotes() {
+      notesContainer.innerHTML = '';
+      if (marginaliaNotes.length === 0) {
+        notesContainer.innerHTML = `
+          <div class="text-center py-6 text-marron-arenisca/40 italic font-cormorant">
+            "Mente despejada. Ninguna distracción registrada aún."
+          </div>
+        `;
+        updateMarginaliaBadge();
+        return;
+      }
+
+      marginaliaNotes.forEach((note, index) => {
+        const noteEl = document.createElement('div');
+        noteEl.className = `flex items-center justify-between p-2 rounded border border-marron-cafe/30 ${note.done ? 'bg-carbon-sombrio/20 opacity-60' : 'bg-carbon-sombrio/50'}`;
+        noteEl.innerHTML = `
+          <div class="flex items-center space-x-2 flex-1 mr-2">
+            <input type="checkbox" ${note.done ? 'checked' : ''} class="note-check rounded text-marron-cafe focus:ring-0 cursor-pointer">
+            <span class="note-text font-cormorant text-xs ${note.done ? 'line-through text-marron-arenisca/50' : 'text-beige-sombrio'}">${escapeHTML(note.text)}</span>
+          </div>
+          <button class="delete-note-btn text-marron-violeta hover:text-purpura-marron text-xs px-1" title="Descartar nota">&times;</button>
+        `;
+
+        noteEl.querySelector('.note-check').addEventListener('change', (e) => {
+          marginaliaNotes[index].done = e.target.checked;
+          saveNotes();
+          renderNotes();
+        });
+
+        noteEl.querySelector('.delete-note-btn').addEventListener('click', () => {
+          marginaliaNotes.splice(index, 1);
+          saveNotes();
+          renderNotes();
+        });
+
+        notesContainer.appendChild(noteEl);
+      });
+      updateMarginaliaBadge();
+    }
+
+    noteForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = newNoteInput.value.trim();
+      if (!text) return;
+      marginaliaNotes.push({ text: text, done: false, date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+      newNoteInput.value = '';
+      saveNotes();
+      renderNotes();
+    });
+
+    openMarginaliaBtn.addEventListener('click', () => {
+      marginaliaModal.classList.remove('hidden');
+      newNoteInput.focus();
+    });
+    closeMarginaliaBtn.addEventListener('click', () => marginaliaModal.classList.add('hidden'));
+
+    /* ==========================================================================
+       8. EXPORTADOR A NOTION MARKDOWN
+       ========================================================================== */
+    function generateMarkdownReport() {
+      const now = new Date();
+      const dateString = now.toISOString().split('T')[0];
+      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const intention = focusIntention.value.trim() || 'Estudio y profundización general';
+
+      let marginaliaSection = '';
+      if (marginaliaNotes.length > 0) {
+        marginaliaSection = marginaliaNotes.map(n => `- [${n.done ? 'x' : ' '}] ${n.text}`).join('\n');
+      } else {
+        marginaliaSection = '*(Sesión completada con concentración plena y sin interrupciones.)*';
+      }
+
+      return `# Bitácora de Enfoque • ${dateString}
+
+> *"La mente que se entrega al estudio paciente cosecha la calma."*
+
+### Resumen de Sesión
+- **Enfoque Principal:** ${intention}
+- **Pomodoros Completados:** ${dailyCompleted} bloques (${totalFocusMinutesToday} minutos de foco)
+- **Pausas Realizadas:** ${sessionBreaksCount}
+- **Hora de Cierre:** ${timeString}
+
+### 🪶 Pensamientos Intrusivos & Marginalia
+${marginaliaSection}
+
+### Reflexión de Cierre
+- [ ] ¿He cumplido el objetivo trazado para este bloque?
+- **Nivel de energía final:** [ ] Agotada  [ ] Equilibrada  [ ] Revitalizada`;
+    }
+
+    openExportBtn.addEventListener('click', () => {
+      const md = generateMarkdownReport();
+      markdownPreview.textContent = md;
+      exportModal.classList.remove('hidden');
+    });
+
+    closeExportBtn.addEventListener('click', () => exportModal.classList.add('hidden'));
+
+    copyMdBtn.addEventListener('click', () => {
+      const md = generateMarkdownReport();
+      navigator.clipboard.writeText(md).then(() => {
+        copyBtnText.textContent = '¡Copiado!';
+        showToast('Copiado al portapapeles');
+        setTimeout(() => {
+          copyBtnText.textContent = 'Copiar Bitácora';
+        }, 2200);
+      }).catch(() => {
+        showToast('Error al copiar al portapapeles');
+      });
+    });
+
+    downloadMdBtn.addEventListener('click', () => {
+      const md = generateMarkdownReport();
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bitacora_enfoque_${new Date().toISOString().split('T')[0]}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Archivo bitacora_enfoque.md descargado');
+    });
+
+    /* ==========================================================================
+       9. NOTIFICACIONES Y UTILIDADES
+       ========================================================================== */
+    function showToast(message) {
+      toastNotification.textContent = message;
+      toastNotification.classList.remove('hidden');
+      toastNotification.classList.add('opacity-100');
+      setTimeout(() => {
+        toastNotification.classList.add('hidden');
+      }, 2500);
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    let quoteIndex = 0;
+    philosophicalQuote.addEventListener('click', () => {
+      quoteIndex = (quoteIndex + 1) % QUOTES.length;
+      philosophicalQuote.textContent = `"${QUOTES[quoteIndex].text}" — ${QUOTES[quoteIndex].author}`;
+    });
+
+    /* ==========================================================================
+       10. EVENT LISTENERS DE CONTROLES
+       ========================================================================== */
+    startPauseBtn.addEventListener('click', toggleTimer);
+    resetBtn.addEventListener('click', resetTimer);
+    skipBtn.addEventListener('click', () => {
+      if (confirm('¿Deseas concluir anticipadamente este intervalo?')) {
+        clearInterval(timerInterval);
+        isRunning = false;
+        handleSessionCompletion();
+      }
+    });
+
+    modeFocus.addEventListener('click', () => switchMode('focus'));
+    modeShort.addEventListener('click', () => switchMode('shortBreak'));
+    modeLong.addEventListener('click', () => switchMode('longBreak'));
+
+    document.querySelectorAll('.preset-btn[data-mins]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const mins = parseInt(e.target.getAttribute('data-mins'), 10);
+        document.querySelectorAll('.preset-btn[data-mins]').forEach(b => {
+          b.classList.remove('border-marron-cafe/70', 'bg-marron-cafe/20', 'text-beige-sombrio', 'font-bold');
+        });
+        e.target.classList.add('border-marron-cafe/70', 'bg-marron-cafe/20', 'text-beige-sombrio', 'font-bold');
+        switchMode('focus', mins);
+      });
+    });
+
+    customTimeBtn.addEventListener('click', () => {
+      const customVal = prompt('Introduce la duración deseada para este bloque de enfoque (en minutos):', '45');
+      if (customVal) {
+        const parsed = parseInt(customVal, 10);
+        if (!isNaN(parsed) && parsed > 0 && parsed <= 180) {
+          switchMode('focus', parsed);
+          showToast(`Temporizador ajustado a ${parsed} minutos`);
+        } else {
+          alert('Por favor introduce un número válido entre 1 y 180 minutos.');
+        }
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        marginaliaModal.classList.add('hidden');
+        exportModal.classList.add('hidden');
+      }
+    });
+
+    loadSavedData();
+    switchMode('focus');
+  </script>
+</body>
+</html>
